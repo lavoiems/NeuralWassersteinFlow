@@ -1,1 +1,1 @@
-# WassersteinNeuralFlow
+# NeuralWassersteinFlow
