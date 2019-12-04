@@ -8,8 +8,8 @@ from . import model
 
 
 def disc_loss_generation(data, nz, alpha, eps, lp, critic1, critic2, generator, device):
-    #t = torch.distributions.beta.Beta(alpha, alpha).sample_n(1).to(device)
-    t = torch.FloatTensor([0.5]).to(device)
+    t = torch.distributions.beta.Beta(alpha, alpha).sample_n(1).to(device)
+    #t = torch.FloatTensor([0.5]).to(device)
     t = torch.stack([t]*data.shape[0])
     z = torch.randn(data.shape[0], nz, device=device)
     gen = generator(z, t).detach()
@@ -127,8 +127,8 @@ def train(args):
             optim_critic4.step()
 
         optim_generator.zero_grad()
-        #t_ = torch.distributions.beta.Beta(args.alpha, args.alpha).sample_n(1).to(args.device)
-        t_ = torch.FloatTensor([0.5]).to(args.device)
+        t_ = torch.distributions.beta.Beta(args.alpha, args.alpha).sample_n(1).to(args.device)
+        #t_ = torch.FloatTensor([0.5]).to(args.device)
         t = torch.stack([t_]*data.shape[0])
         t_loss1 = transfer_loss(data, args.eps, args.lp, args.z_dim, t, critic1, critic2, generator, args.device)
         t_loss2 = transfer_loss(datay, args.eps, args.lp, args.z_dim, t, critic3, critic4, generator, args.device)
