@@ -66,8 +66,8 @@ def train(args):
 
         optim_generator.zero_grad()
         x = generator(data)
-        t_lossx = sinkhorn_loss(x, data, args.eps, data.shape[0], 500, args.device, p=args.lp)**args.p_exp
-        t_lossy = sinkhorn_loss(x, datay, args.eps, data.shape[0], 500, args.device, p=args.lp)**args.p_exp
+        t_lossx = sinkhorn_loss(x, data, args.eps, data.shape[0], 100, args.device, p=args.lp)**args.p_exp
+        t_lossy = sinkhorn_loss(x, datay, args.eps, data.shape[0], 100, args.device, p=args.lp)**args.p_exp
         ((1-args.alphat)*t_lossx + args.alphat*t_lossy).backward()
         optim_generator.step()
 
