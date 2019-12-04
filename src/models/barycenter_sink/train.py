@@ -50,7 +50,7 @@ def train(args):
     generator = models['generator'].to(args.device)
     print(generator)
 
-    optim_generator = optim.Adam(generator.parameters(), lr=args.lr, betas=(args.beta1, args.beta2))
+    optim_generator = optim.SGD(generator.parameters(), lr=args.lr)#, betas=(args.beta1, args.beta2))
 
     iter1, iter2 = iter(train_loader1), iter(train_loader2)
     iteration = infer_iteration(list(models.keys())[0], args.reload, args.model_path, args.save_path)
