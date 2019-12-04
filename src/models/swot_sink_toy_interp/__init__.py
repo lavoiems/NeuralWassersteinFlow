@@ -15,6 +15,7 @@ def parse_args(parser):
     parser.add_argument('--alpha', type=float, default=1)
     parser.add_argument('--p-exp', type=int, default=1)
     parser.add_argument('--nt', type=int, default=1)
+    parser.add_argument('--sink-it', type=int, default=100)
 
 
 def execute(args):
