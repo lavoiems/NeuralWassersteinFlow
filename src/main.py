@@ -14,6 +14,7 @@ from models import legendre_duality_toy_interp
 from models import swgan
 from models import swgan_interp
 from models import swgan_toy
+from models import swgan_toy_c
 from models import swgan_toy_interp
 from models import swot_sink_toy_interp
 from models import swot_toy_interp
@@ -29,7 +30,7 @@ _models_ = {
     'legendre_duality_toy_interp': legendre_duality_toy_interp,
     'swgan': swgan,
     'swgan_interp': swgan_interp,
-    'swgan_toy': swgan_toy,
+    'swgan_toy_c': swgan_toy_c,
     'swgan_toy_interp': swgan_toy_interp,
     'swot_sink_toy_interp': swot_sink_toy_interp,
     'swot_toy_interp': swot_toy_interp,
