@@ -84,32 +84,21 @@ def train(args):
         generator.train()
         critic.train()
 
-        if i < 100:
+        for _ in range(args.d_updates):
             batchx, iter1 = sample(iter1, train_loader1)
             data = batchx.to(args.device)
-            optim_generator.zero_grad()
-            z = torch.randn(data.shape[0], args.z_dim, device=args.device)
-            gen = generator(z)
-            reg = F.mse_loss(gen, data)
-            (10*reg).backward()
-            optim_generator.step()
 
-        else:
-            for _ in range(args.d_updates):
-                batchx, iter1 = sample(iter1, train_loader1)
-                data = batchx.to(args.device)
+            optim_critic.zero_grad()
+            r_loss = critic_loss(data, args.z_dim, critic, generator, args.device)
+            r_loss.backward(mone)
+            optim_critic.step()
 
-                optim_critic.zero_grad()
-                r_loss = critic_loss(data, args.z_dim, critic, generator, args.device)
-                r_loss.backward(mone)
-                optim_critic.step()
-
-            batchx, iter1 = sample(iter1, train_loader1)
-            data = batchx.to(args.device)
-            optim_generator.zero_grad()
-            t_loss = transfer_loss(data, args.z_dim, critic, generator, args.device)
-            t_loss.backward()
-            optim_generator.step()
+        batchx, iter1 = sample(iter1, train_loader1)
+        data = batchx.to(args.device)
+        optim_generator.zero_grad()
+        t_loss = transfer_loss(data, args.z_dim, critic, generator, args.device)
+        t_loss.backward()
+        optim_generator.step()
 
         if i % args.evaluate == 0:
             generator.eval()

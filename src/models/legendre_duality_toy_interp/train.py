@@ -24,7 +24,8 @@ def compute_fc(x, y, lp, critic):
 
 def critic_loss(data1, data2, alpha, critic, generator, device):
     f = critic(data2).mean()
-    t_ = torch.distributions.beta.Beta(alpha, alpha).sample_n(1).to(device)
+    #t_ = torch.distributions.beta.Beta(alpha, alpha).sample_n(1).to(device)
+    t_ = torch.FloatTensor([1]).to(device)
     t = torch.stack([t_]*data1.shape[0])
     gen = generator(data1, t).detach()
     fc = compute_fc(data2, gen, 2, critic).mean()
@@ -95,8 +96,8 @@ def evaluate(visualiser, target1, target2, z_dim, generator, id, device):
     z = target1
     #z = torch.randn(target1.shape[0], z_dim, device=device)
     for i in range(card):
-        t = torch.FloatTensor([i/(card-1)]).repeat(target1.shape[0], 1).to(device)
-        #t = torch.FloatTensor([1]).repeat(target1.shape[0], 1).to(device)
+        #t = torch.FloatTensor([i/(card-1)]).repeat(target1.shape[0], 1).to(device)
+        t = torch.FloatTensor([1]).repeat(target1.shape[0], 1).to(device)
         X = generator(z, t).cpu().numpy().transpose()
         plt.xlim(-8,8)
         plt.ylim(-8,8)
@@ -153,10 +154,12 @@ def train(args):
 
         optim_generator.zero_grad()
         t_ = torch.distributions.beta.Beta(args.alpha, args.alpha).sample_n(1).to(args.device)
+        t_ = torch.FloatTensor([1]).to(args.device)
         t = torch.stack([t_]*data1.shape[0])
-        t_loss1 = transfer_loss(data1, data1, t, critic1, generator, args.device)**2
-        t_loss2 = transfer_loss(data1, data2, t, critic2, generator, args.device)**2
-        ((1-t_)*t_loss1 + t_*t_loss2).backward()
+        t_loss1 = transfer_loss(data1, data1, t, critic1, generator, args.device)
+        t_loss2 = transfer_loss(data1, data2, t, critic2, generator, args.device)
+        t_loss2.backward()
+        #((1-t_)*t_loss1 + t_*t_loss2).backward()
 
         #t_ = torch.FloatTensor([0]).to(args.device)
         #t = torch.stack([t_]*data1.shape[0])
