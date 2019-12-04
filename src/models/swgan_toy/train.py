@@ -90,7 +90,7 @@ def train(args):
 
     optim_critic1 = optim.Adam(critic1.parameters(), lr=args.lr, betas=(args.beta1, args.beta2))
     optim_critic2 = optim.Adam(critic2.parameters(), lr=args.lr, betas=(args.beta1, args.beta2))
-    optim_generator = optim.Adam(generator.parameters(), lr=1e-3, betas=(args.beta1, args.beta2))
+    optim_generator = optim.Adam(generator.parameters(), lr=args.lr, betas=(args.beta1, args.beta2))
 
     iter1 = iter(train_loader1)
     iter2 = iter(train_loader2)
