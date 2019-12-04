@@ -23,7 +23,8 @@ def compute_fc(x, y, lp, t, critic):
 
 
 def critic_loss(data1, data2, alpha, critic, generator, device):
-    t_ = torch.distributions.beta.Beta(alpha, alpha).sample_n(1).to(device)
+    #t_ = torch.distributions.beta.Beta(alpha, alpha).sample_n(1).to(device)
+    t_ = torch.FloatTensor([1]).to(device)
     t = torch.stack([t_]*data1.shape[0])
     f = critic(data2, t).mean()
     gen = generator(data1, t).detach()
