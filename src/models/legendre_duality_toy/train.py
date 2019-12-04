@@ -2,6 +2,7 @@ import time
 import torch
 from torch import optim
 import matplotlib.pyplot as plt
+import torch.nn.functional as F
 
 from common.util import sample, save_models
 from common.initialize import initialize, infer_iteration
@@ -83,21 +84,31 @@ def train(args):
         generator.train()
         critic.train()
 
-        for _ in range(args.d_updates):
+        if i < 100:
             batchx, iter1 = sample(iter1, train_loader1)
             data = batchx.to(args.device)
+            optim_generator.zero_grad()
+            gen = generator(data)
+            reg = F.mse_loss(gen, data)
+            (10*reg).backward()
+            optim_generator.step()
 
-            optim_critic.zero_grad()
-            r_loss = critic_loss(data, args.z_dim, critic, generator, args.device)
-            r_loss.backward(mone)
-            optim_critic.step()
+        else:
+            for _ in range(args.d_updates):
+                batchx, iter1 = sample(iter1, train_loader1)
+                data = batchx.to(args.device)
 
-        batchx, iter1 = sample(iter1, train_loader1)
-        data = batchx.to(args.device)
-        optim_generator.zero_grad()
-        t_loss = transfer_loss(data, args.z_dim, critic, generator, args.device)
-        t_loss.backward()
-        optim_generator.step()
+                optim_critic.zero_grad()
+                r_loss = critic_loss(data, args.z_dim, critic, generator, args.device)
+                r_loss.backward(mone)
+                optim_critic.step()
+
+            batchx, iter1 = sample(iter1, train_loader1)
+            data = batchx.to(args.device)
+            optim_generator.zero_grad()
+            t_loss = transfer_loss(data, args.z_dim, critic, generator, args.device)
+            t_loss.backward()
+            optim_generator.step()
 
         if i % args.evaluate == 0:
             generator.eval()
