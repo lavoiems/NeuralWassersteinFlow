@@ -137,7 +137,7 @@ def train(args):
 
         optim_generator.zero_grad()
         t_ = torch.distributions.beta.Beta(args.alpha, args.alpha).sample_n(args.nt).to(args.device)
-        t = torch.stack([t_]*data.shape[0])
+        t = torch.stack([t_] * data.shape[0]).transpose(0, 1).reshape(-1, 1)
         tdata = torch.cat([data]*args.nt)
         tdatay = torch.cat([datay]*args.nt)
         t_lossx = transfer_loss(tdata, tdata, args.nt, t, args.eps, args.lp, criticx, generator)**args.p_exp
