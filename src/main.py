@@ -30,6 +30,7 @@ _models_ = {
     'legendre_duality_toy_interp': legendre_duality_toy_interp,
     'swgan': swgan,
     'swgan_interp': swgan_interp,
+    'swgan_toy': swgan_toy,
     'swgan_toy_c': swgan_toy_c,
     'swgan_toy_interp': swgan_toy_interp,
     'swot_sink_toy_interp': swot_sink_toy_interp,
