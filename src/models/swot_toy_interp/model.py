@@ -8,11 +8,17 @@ class Critic(nn.Module):
         super(Critic, self).__init__()
 
         x = [nn.Linear(i_dim, h_dim),
-             nn.ELU(),
+             nn.ReLU(),
              nn.Linear(h_dim, h_dim),
-             nn.ELU(),
+             nn.ReLU(),
              nn.Linear(h_dim, h_dim),
-             nn.ELU(),
+             nn.ReLU(),
+             nn.Linear(h_dim, h_dim),
+             nn.ReLU(),
+             nn.Linear(h_dim, h_dim),
+             nn.ReLU(),
+             nn.Linear(h_dim, h_dim),
+             nn.ReLU(),
              nn.Linear(h_dim, 1)]
 
         self.x = nn.Sequential(*x)
@@ -26,11 +32,17 @@ class Generator(nn.Module):
         super(Generator, self).__init__()
 
         x = [nn.Linear(o_dim+1, h_dim),
-             nn.ELU(),
+             nn.ReLU(),
              nn.Linear(h_dim, h_dim),
-             nn.ELU(),
+             nn.ReLU(),
              nn.Linear(h_dim, h_dim),
-             nn.ELU(),
+             nn.ReLU(),
+             nn.Linear(h_dim, h_dim),
+             nn.ReLU(),
+             nn.Linear(h_dim, h_dim),
+             nn.ReLU(),
+             nn.Linear(h_dim, h_dim),
+             nn.ReLU(),
              nn.Linear(h_dim, o_dim)]
 
         self.x = nn.Sequential(*x)
