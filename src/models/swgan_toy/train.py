@@ -8,7 +8,7 @@ from common.initialize import initialize, infer_iteration
 from . import model
 
 
-def disc_loss_generation(data, target, eps, lp, nz, critic1, critic2):
+def disc_loss_generation(data, target, eps, lp, critic1, critic2):
     u = critic1(data)
     v = critic2(target)
     u_ = u.unsqueeze(0)
