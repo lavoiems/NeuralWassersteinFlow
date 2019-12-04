@@ -25,11 +25,11 @@ class Generator(nn.Module):
         super(Generator, self).__init__()
 
         x = [nn.Linear(z_dim, 128),
-             nn.Tanh(),
+             nn.ReLU(inplace=True),
              nn.Linear(128, 128),
-             nn.Tanh(),
+             nn.ReLU(inplace=True),
              nn.Linear(128, 128),
-             nn.Tanh(),
+             nn.ReLU(inplace=True),
              nn.Linear(128, o_dim)]
 
         self.x = nn.Sequential(*x)
