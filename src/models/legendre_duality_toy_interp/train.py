@@ -136,7 +136,7 @@ def train(args):
         critic1.train()
         critic2.train()
 
-        if i < 5:
+        if i < 1:
             batchx, iter1 = sample(iter1, train_loader1)
             data1 = batchx.to(args.device)
             t_ = torch.FloatTensor([1]).to(args.device)
