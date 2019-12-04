@@ -124,7 +124,7 @@ def train(args):
 
     optim_critic1 = optim.Adam(critic1.parameters(), lr=args.lr, betas=(args.beta1, args.beta2))
     optim_critic2 = optim.Adam(critic2.parameters(), lr=args.lr, betas=(args.beta1, args.beta2))
-    optim_generator = optim.SGD(generator.parameters(), lr=args.lr)#, betas=(args.beta1, args.beta2))
+    optim_generator = optim.Adam(generator.parameters(), lr=args.lr, betas=(args.beta1, args.beta2))
 
     iter1, iter2 = iter(train_loader1), iter(train_loader2)
     iteration = infer_iteration(list(models.keys())[0], args.reload, args.model_path, args.save_path)
