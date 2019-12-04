@@ -14,6 +14,7 @@ def parse_args(parser):
     parser.add_argument('--lp', type=int, default=2)
     parser.add_argument('--alpha', type=float, default=1)
     parser.add_argument('--p-exp', type=int, default=1)
+    parser.add_argument('--nt', type=int, default=1)
 
 
 def execute(args):

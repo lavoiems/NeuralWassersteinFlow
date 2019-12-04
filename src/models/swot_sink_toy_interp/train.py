@@ -69,12 +69,13 @@ def train(args):
             datay = batchy.to(args.device)
 
         optim_generator.zero_grad()
-        t_ = torch.distributions.beta.Beta(args.alpha, args.alpha).sample_n(1).to(args.device)
-        t = torch.stack([t_]*data.shape[0])
-        x = generator(data, t)
-        t_lossx = sinkhorn_loss(x, data, args.eps, data.shape[0], 100, args.device, p=args.lp)**args.p_exp
-        t_lossy = sinkhorn_loss(x, datay, args.eps, data.shape[0], 100, args.device, p=args.lp)**args.p_exp
-        ((1-t_)*t_lossx + t_*t_lossy).backward()
+        for _ in range(args.nt):
+            t_ = torch.distributions.beta.Beta(args.alpha, args.alpha).sample_n(1).to(args.device)
+            t = torch.stack([t_]*data.shape[0])
+            x = generator(data, t)
+            t_lossx = sinkhorn_loss(x, data, args.eps, data.shape[0], args.sink_it, args.device, p=args.lp)**args.p_exp
+            t_lossy = sinkhorn_loss(x, datay, args.eps, data.shape[0], args.sink_it, args.device, p=args.lp)**args.p_exp
+            ((1-t_)*t_lossx + t_*t_lossy).backward()
         optim_generator.step()
 
         if i % args.evaluate == 0:
