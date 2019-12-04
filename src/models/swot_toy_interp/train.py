@@ -119,16 +119,17 @@ def train(args):
         generator.train()
         criticx.train()
         criticy.train()
+
+        batchx, iter1 = sample(iter1, train_loader1)
+        data = batchx.to(args.device)
+        batchy, iter2 = sample(iter2, train_loader2)
+        datay = batchy.to(args.device)
         for _ in range(args.d_updates):
-            batchx, iter1 = sample(iter1, train_loader1)
-            data = batchx.to(args.device)
             optim_criticx.zero_grad()
             r_loss, g_loss, p = disc_loss_generation(data, data, args.eps, args.lp, criticx)
             (r_loss + g_loss + p).backward(mone)
             optim_criticx.step()
 
-            batchy, iter2 = sample(iter2, train_loader2)
-            datay = batchy.to(args.device)
             optim_criticy.zero_grad()
             r_loss, g_loss, p = disc_loss_generation(data, datay, args.eps, args.lp, criticy)
             (r_loss + g_loss + p).backward(mone)
