@@ -103,12 +103,11 @@ def train(args):
         generator.train()
         critic1.train()
         critic2.train()
+        batchx, iter1 = sample(iter1, train_loader1)
+        data = batchx.to(args.device)
+        batchy, iter2 = sample(iter2, train_loader2)
+        target = batchy.to(args.device)
         for _ in range(args.d_updates):
-            batchx, iter1 = sample(iter1, train_loader1)
-            data = batchx.to(args.device)
-            batchy, iter2 = sample(iter2, train_loader2)
-            target = batchy.to(args.device)
-
             optim_critic1.zero_grad()
             optim_critic2.zero_grad()
             r_loss, g_loss, p = disc_loss_generation(data, target, args.eps, args.lp, critic1, critic2)
