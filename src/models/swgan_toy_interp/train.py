@@ -14,7 +14,6 @@ def disc_loss_generation(data, target, nz, eps, alpha, lp, critic1, critic2, gen
     #t = torch.rand(1, device=device)
     t = torch.distributions.beta.Beta(alpha, alpha).sample_n(1).to(device)
     t = torch.stack([t]*data.shape[0])
-    z = torch.randn(data.shape[0], nz, device=device)
     gen = generator(data, t).detach()
     u = critic1(target, t)
     v = critic2(gen, t)
@@ -29,7 +28,6 @@ def disc_loss_generation(data, target, nz, eps, alpha, lp, critic1, critic2, gen
 
 
 def transfer_loss(data, target, nz, t, eps, lp, critic1, critic2, generator, device):
-    z = torch.randn(data.shape[0], nz, device=device)
     gen = generator(data, t)
     u = critic1(target, t)
     v = critic2(gen, t)
@@ -79,13 +77,11 @@ def evaluate(visualiser, data, data1, target, nz, generator, id, device):
     visualiser.matplotlib(fig, 'target2', f'{id}0')
     plt.clf()
     card = 11
-    z = torch.randn(data.shape[0], nz, device=device)
-    z = data
     for i in range(card):
         plt.xlim(-8,8)
         plt.ylim(-8,8)
         t = torch.FloatTensor([i/(card-1)]).repeat(data.shape[0], 1).to(device)
-        X = generator(z, t)
+        X = generator(data, t)
         plt.scatter(*X.cpu().numpy().transpose(), c=color_val)
         visualiser.matplotlib(fig, f'data{i}', f'{id}0')
         plt.clf()
