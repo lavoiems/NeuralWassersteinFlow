@@ -6,13 +6,17 @@ class Critic(nn.Module):
     def __init__(self, i_dim, h_dim, **kwargs):
         super(Critic, self).__init__()
 
-        x = [nn.Linear(i_dim, 128),
+        x = [nn.Linear(i_dim, h_dim),
              nn.ReLU(inplace=True),
-             nn.Linear(128, 128),
+             nn.Linear(h_dim, h_dim),
              nn.ReLU(inplace=True),
-             nn.Linear(128, 128),
+             nn.Linear(h_dim, h_dim),
              nn.ReLU(inplace=True),
-             nn.Linear(128, 1)]
+             nn.Linear(h_dim, h_dim),
+             nn.ReLU(inplace=True),
+             nn.Linear(h_dim, h_dim),
+             nn.ReLU(inplace=True),
+             nn.Linear(h_dim, 1)]
 
         self.x = nn.Sequential(*x)
 
@@ -24,13 +28,17 @@ class Generator(nn.Module):
     def __init__(self, o_dim, z_dim, h_dim, **kwargs):
         super(Generator, self).__init__()
 
-        x = [nn.Linear(z_dim, 128),
+        x = [nn.Linear(z_dim, h_dim),
              nn.ReLU(inplace=True),
-             nn.Linear(128, 128),
+             nn.Linear(h_dim, h_dim),
              nn.ReLU(inplace=True),
-             nn.Linear(128, 128),
+             nn.Linear(h_dim, h_dim),
              nn.ReLU(inplace=True),
-             nn.Linear(128, o_dim)]
+             nn.Linear(h_dim, h_dim),
+             nn.ReLU(inplace=True),
+             nn.Linear(h_dim, h_dim),
+             nn.ReLU(inplace=True),
+             nn.Linear(h_dim, o_dim)]
 
         self.x = nn.Sequential(*x)
 
