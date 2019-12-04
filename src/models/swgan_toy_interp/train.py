@@ -15,7 +15,7 @@ def disc_loss_generation(data, target, nz, eps, alpha, lp, critic1, critic2, gen
     t = torch.distributions.beta.Beta(alpha, alpha).sample_n(1).to(device)
     t = torch.stack([t]*data.shape[0])
     z = torch.randn(data.shape[0], nz, device=device)
-    gen = generator(z, t).detach()
+    gen = generator(data, t).detach()
     u = critic1(target, t)
     v = critic2(gen, t)
     u_ = u.unsqueeze(0)
@@ -30,7 +30,7 @@ def disc_loss_generation(data, target, nz, eps, alpha, lp, critic1, critic2, gen
 
 def transfer_loss(data, target, nz, t, eps, lp, critic1, critic2, generator, device):
     z = torch.randn(data.shape[0], nz, device=device)
-    gen = generator(z, t)
+    gen = generator(data, t)
     u = critic1(target, t)
     v = critic2(gen, t)
     u_ = u.unsqueeze(0)
@@ -80,6 +80,7 @@ def evaluate(visualiser, data, data1, target, nz, generator, id, device):
     plt.clf()
     card = 11
     z = torch.randn(data.shape[0], nz, device=device)
+    z = data
     for i in range(card):
         plt.xlim(-8,8)
         plt.ylim(-8,8)
