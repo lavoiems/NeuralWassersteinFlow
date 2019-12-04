@@ -2,6 +2,8 @@ import time
 import torch
 from torch import optim
 import matplotlib.pyplot as plt
+import matplotlib.cm as cmx
+import matplotlib.colors as colors
 
 from common.util import sample, save_models
 from common.initialize import initialize, infer_iteration
@@ -50,8 +52,13 @@ def define_models(shape1, **parameters):
 @torch.no_grad()
 def evaluate(visualiser, data, target, generator, id, device):
     fig = plt.figure()
+    jet = plt.get_cmap('jet')
+    alphas = data.sum(1)
+    cNorm = colors.Normalize(vmin=alphas.min(), vmax=alphas.max())
+    scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=jet)
+    color_val = scalarMap.to_rgba(alphas.cpu())
 
-    plt.scatter(*data.cpu().numpy().transpose())
+    plt.scatter(*data.cpu().numpy().transpose(), c=color_val)
     visualiser.matplotlib(fig, 'data', f'{id}0')
     plt.clf()
 
@@ -60,7 +67,7 @@ def evaluate(visualiser, data, target, generator, id, device):
     plt.clf()
 
     transfered = generator(data).to('cpu').detach().numpy().transpose()
-    plt.scatter(*transfered)
+    plt.scatter(*transfered, c=color_val)
     visualiser.matplotlib(fig, 'Transfered', f'{id}0')
     plt.clf()
     plt.close(fig)
