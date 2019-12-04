@@ -179,7 +179,7 @@ def train(args):
             #(10*reg).backward()
             optim_generator.step()
 
-        if i % args.evaluate == 0:
+        if (i+1) % args.evaluate == 0:
             generator.eval()
             print('Iter: %s' % i, time.time() - t0)
             batchx, titer1 = sample(titer1, test_loader1)
