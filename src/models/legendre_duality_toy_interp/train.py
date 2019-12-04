@@ -12,29 +12,29 @@ from common.initialize import initialize, infer_iteration
 from . import model
 
 
-def compute_fc(x, y, lp, critic):
+def compute_fc(x, y, lp, t, critic):
     x_ = x.view(x.shape[0], -1).unsqueeze(0)
     y_ = y.view(y.shape[0], -1).unsqueeze(1)
 
     cost = (x_ - y_).abs().pow(lp)
     cost = 1/lp*cost.sum(2)
-    psi = (cost - critic(x).unsqueeze(0))
+    psi = (cost - critic(x, t).unsqueeze(0))
     return psi.min(1)[0]
 
 
 def critic_loss(data1, data2, alpha, critic, generator, device):
-    f = critic(data2).mean()
     t_ = torch.distributions.beta.Beta(alpha, alpha).sample_n(1).to(device)
     t = torch.stack([t_]*data1.shape[0])
+    f = critic(data2, t).mean()
     gen = generator(data1, t).detach()
-    fc = compute_fc(data2, gen, 2, critic).mean()
+    fc = compute_fc(data2, gen, 2, t, critic).mean()
     return fc + f
 
 
 def transfer_loss(z, data, t, critic, generator, device):
-    f = critic(data).mean()
+    f = critic(data, t).mean()
     gen = generator(z, t)
-    fc = compute_fc(data, gen, 2, critic).mean()
+    fc = compute_fc(data, gen, 2, t, critic).mean()
     return fc + f
 
 
