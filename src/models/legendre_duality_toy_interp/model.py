@@ -6,7 +6,7 @@ class Critic(nn.Module):
     def __init__(self, i_dim, h_dim, **kwargs):
         super(Critic, self).__init__()
 
-        x = [nn.Linear(i_dim, h_dim),
+        x = [nn.Linear(i_dim+1, h_dim),
              nn.ReLU(inplace=True),
              nn.Linear(h_dim, h_dim),
              nn.ReLU(inplace=True),
@@ -24,8 +24,9 @@ class Critic(nn.Module):
 
         self.x = nn.Sequential(*x)
 
-    def forward(self, x):
-        return self.x(x).squeeze()
+    def forward(self, x, t):
+        o = torch.cat((x,t),1)
+        return self.x(o).squeeze()
 
 
 class Generator(nn.Module):
