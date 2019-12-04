@@ -31,7 +31,8 @@ def evaluate(visualiser, z_dim, data, data1, target, generator, id, device):
     visualiser.matplotlib(fig, 'target2', f'{id}0')
     plt.clf()
     card = 11
-    z = torch.randn(data.shape[0], z_dim, device=device)
+    #z = torch.randn(data.shape[0], z_dim, device=device)
+    z = data1
     for i in range(card):
         plt.xlim(-8,8)
         plt.ylim(-8,8)
