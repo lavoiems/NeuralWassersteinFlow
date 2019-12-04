@@ -71,8 +71,7 @@ def train(args):
         optim_generator.zero_grad()
         t_ = torch.distributions.beta.Beta(args.alpha, args.alpha).sample_n(1).to(args.device)
         t = torch.stack([t_]*data.shape[0])
-        z = torch.randn(data.shape[0], args.z_dim, device=args.device)
-        x = generator(z, t)
+        x = generator(data, t)
         t_lossx = sinkhorn_loss(x, data, args.eps, data.shape[0], 100, args.device, p=args.lp)**args.p_exp
         t_lossy = sinkhorn_loss(x, datay, args.eps, data.shape[0], 100, args.device, p=args.lp)**args.p_exp
         ((1-t_)*t_lossx + t_*t_lossy).backward()

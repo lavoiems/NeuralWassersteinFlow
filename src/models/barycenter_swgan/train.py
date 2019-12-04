@@ -134,7 +134,7 @@ def train(args):
         optim_generator.zero_grad()
         t_lossx = transfer_loss(data, data, args.z_dim, args.eps, args.lp, criticx1, criticx2, generator, args.device)
         t_lossy = transfer_loss(data, datay, args.z_dim, args.eps, args.lp, criticy1, criticy2, generator, args.device)
-        (1*t_lossx + 0*t_lossy).backward()
+        (0.5*t_lossx + 0.5*t_lossy).backward()
         optim_generator.step()
 
         if i % args.evaluate == 0:
