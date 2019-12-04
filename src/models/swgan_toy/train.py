@@ -32,7 +32,7 @@ def transfer_loss(data, target, eps, lp, critic1, critic2, generator, device):
     H = torch.clamp(u_ + v_ - (torch.abs(target_ - data_)**lp).sum(2), 0)
     H = 1/eps*H
     gen_ = gen.unsqueeze(1)
-    loss = (torch.abs(data_ - gen_)**lp).sum(2)*H.detach()
+    loss = (torch.abs(target_ - gen_)**lp).sum(2)*H.detach()
     return loss.mean()
 
 
