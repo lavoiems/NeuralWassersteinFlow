@@ -137,19 +137,18 @@ def train(args):
             (r_loss + g_loss + p).backward(mone)
             optim_criticy.step()
 
-        if i > 200:
-            optim_generator.zero_grad()
-            t_ = torch.distributions.beta.Beta(args.alpha, args.alpha).sample_n(args.nt).to(args.device)
-            t = torch.stack([t_] * data.shape[0]).transpose(0, 1).reshape(-1, 1)
-            tinputdata = torch.cat([input_data]*args.nt)
-            tdata = torch.cat([data]*args.nt)
-            tdatay = torch.cat([datay]*args.nt)
-            t_lossx = transfer_loss(tinputdata, tdata, args.nt, t, args.eps, args.lp, criticx, generator)**args.p_exp
-            t_lossy = transfer_loss(tinputdata, tdatay, args.nt, t, args.eps, args.lp, criticy, generator)**args.p_exp
-            t_loss = ((1-t_)*t_lossx + t_*t_lossy).sum()
-            t_loss.backward()
-            optim_generator.step()
-            t_loss = t_loss.detach().cpu().numpy()
+        optim_generator.zero_grad()
+        t_ = torch.distributions.beta.Beta(args.alpha, args.alpha).sample_n(args.nt).to(args.device)
+        t = torch.stack([t_] * data.shape[0]).transpose(0, 1).reshape(-1, 1)
+        tinputdata = torch.cat([input_data]*args.nt)
+        tdata = torch.cat([data]*args.nt)
+        tdatay = torch.cat([datay]*args.nt)
+        t_lossx = transfer_loss(tinputdata, tdata, args.nt, t, args.eps, args.lp, criticx, generator)**args.p_exp
+        t_lossy = transfer_loss(tinputdata, tdatay, args.nt, t, args.eps, args.lp, criticy, generator)**args.p_exp
+        t_loss = ((1-t_)*t_lossx + t_*t_lossy).sum()
+        t_loss.backward()
+        optim_generator.step()
+        t_loss = t_loss.detach().cpu().numpy()
 
         if i % args.evaluate == 0:
             generator.eval()
