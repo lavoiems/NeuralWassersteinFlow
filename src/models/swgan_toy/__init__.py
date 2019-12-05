@@ -17,7 +17,7 @@ def parse_args(parser):
 def execute(args):
     print(args)
     dataset1 = toy.gaussian2(args.train_batch_size)
-    dataset2 = toy.mixture2(args.train_batch_size)
+    dataset2 = toy.gaussian2(args.train_batch_size)
     args.loaders1 = (dataset1, dataset1)
     args.loaders2 = (dataset2, dataset2)
     args.shape1 = 2
