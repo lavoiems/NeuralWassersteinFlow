@@ -70,9 +70,10 @@ def evaluate(visualiser, data, target, generator, critic1, critic2, id, device):
     H = torch.clamp(u_ + v_ - (torch.abs(target_ - data_)**2).sum(2), 0)
     H = H/(2*0.1)
     H = H.mean(0)
-    H = target*H
-    delta = (target - data).abs_()
-    plt.arrow(data[:,0], data[:,1], delta[:,0], delta[:,1])
+    H = target*H.unsqueeze(1)
+    delta = (H - data).abs_()
+    for da, de in zip(data, delta):
+        plt.arrow(da[:,0], da[:,1], de[:,0], de[:,1])
 
     visualiser.matplotlib(fig, 'data', f'{id}0')
     plt.clf()
