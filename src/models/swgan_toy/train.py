@@ -72,7 +72,7 @@ def evaluate(visualiser, data, target, generator, critic1, critic2, id, device):
     H = H.mean(0)
     H = target*H.unsqueeze(1)
     delta = (H - data).abs_()
-    for da, de in zip(data, delta):
+    for da, de in zip(data.cpu().numpy(), delta.cpu().numpy()):
         plt.arrow(da[0], da[1], de[0], de[1])
 
     visualiser.matplotlib(fig, 'data', f'{id}0')
