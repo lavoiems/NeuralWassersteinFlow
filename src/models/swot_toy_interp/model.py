@@ -36,7 +36,7 @@ class Generator(nn.Module):
             act = nn.ELU(inplace=True)
 
         x = []
-        dim = o_dim
+        dim = o_dim+1
         for _ in range(n_layers):
             x += [nn.Linear(dim, h_dim), act]
             dim = h_dim
@@ -45,5 +45,6 @@ class Generator(nn.Module):
 
         self.x = nn.Sequential(*x)
 
-    def forward(self, z):
-        return self.x(z)
+    def forward(self, z, t):
+        o = torch.cat((z, t), 1)
+        return self.x(o)
