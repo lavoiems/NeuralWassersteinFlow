@@ -44,14 +44,6 @@ class Generator(nn.Module):
              nn.ELU(inplace=True),
              nn.Linear(h_dim, h_dim),
              nn.ELU(inplace=True),
-             nn.Linear(h_dim, h_dim),
-             nn.ELU(inplace=True),
-             nn.Linear(h_dim, h_dim),
-             nn.ELU(inplace=True),
-             nn.Linear(h_dim, h_dim),
-             nn.ELU(inplace=True),
-             nn.Linear(h_dim, h_dim),
-             nn.ELU(inplace=True),
              nn.Linear(h_dim, o_dim)]
 
         self.x = nn.Sequential(*x)
