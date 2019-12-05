@@ -134,7 +134,7 @@ def train(args):
             evaluate(args.visualiser, data, target, generator, critic1, critic2, i, args.device)
             d_loss = (r_loss+g_loss).detach().cpu().numpy()
             args.visualiser.plot(step=i, data=d_loss, title=f'Critic loss')
-            #args.visualiser.plot(step=i, data=t_loss.detach().cpu().numpy(), title=f'Generator loss')
+            args.visualiser.plot(step=i, data=t_loss.detach().cpu().numpy(), title=f'Generator loss')
             args.visualiser.plot(step=i, data=p.detach().cpu().numpy(), title=f'Penalty')
             t0 = time.time()
             save_models(models, i, args.model_path, args.checkpoint)
