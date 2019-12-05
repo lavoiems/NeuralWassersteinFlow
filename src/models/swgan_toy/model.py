@@ -38,6 +38,16 @@ class Generator(nn.Module):
              nn.ReLU(inplace=True),
              nn.Linear(h_dim, h_dim),
              nn.ReLU(inplace=True),
+             nn.Linear(h_dim, h_dim),
+             nn.ReLU(inplace=True),
+             nn.Linear(h_dim, h_dim),
+             nn.ReLU(inplace=True),
+             nn.Linear(h_dim, h_dim),
+             nn.ReLU(inplace=True),
+             nn.Linear(h_dim, h_dim),
+             nn.ReLU(inplace=True),
+             nn.Linear(h_dim, h_dim),
+             nn.ReLU(inplace=True),
              nn.Linear(h_dim, o_dim)]
 
         self.x = nn.Sequential(*x)
