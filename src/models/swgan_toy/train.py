@@ -116,10 +116,10 @@ def train(args):
             optim_critic1.step()
             optim_critic2.step()
 
-        optim_generator.zero_grad()
-        t_loss = transfer_loss(data, target, args.eps, args.lp, critic1, critic2, generator, args.device)
-        t_loss.backward()
-        optim_generator.step()
+        #optim_generator.zero_grad()
+        #t_loss = transfer_loss(data, target, args.eps, args.lp, critic1, critic2, generator, args.device)
+        #t_loss.backward()
+        #optim_generator.step()
 
         if i % args.evaluate == 0:
             generator.eval()
@@ -131,7 +131,7 @@ def train(args):
             evaluate(args.visualiser, data, target, generator, i, args.device)
             d_loss = (r_loss+g_loss).detach().cpu().numpy()
             args.visualiser.plot(step=i, data=d_loss, title=f'Critic loss')
-            args.visualiser.plot(step=i, data=t_loss.detach().cpu().numpy(), title=f'Generator loss')
+            #args.visualiser.plot(step=i, data=t_loss.detach().cpu().numpy(), title=f'Generator loss')
             args.visualiser.plot(step=i, data=p.detach().cpu().numpy(), title=f'Penalty')
             t0 = time.time()
             save_models(models, i, args.model_path, args.checkpoint)
