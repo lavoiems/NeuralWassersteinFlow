@@ -59,6 +59,8 @@ def evaluate(visualiser, data, target, generator, critic1, critic2, id, device):
     scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=jet)
     color_val = scalarMap.to_rgba(alphas.cpu())
 
+    plt.xlim(-8,8)
+    plt.ylim(-8,8)
     plt.scatter(*data.cpu().numpy().transpose(), c=color_val)
 
     u = critic1(data)
