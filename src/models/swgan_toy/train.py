@@ -117,7 +117,7 @@ def train(args):
 
         if i == 1000:
             for g in optim_generator.param_groups:
-                g['lr'] = 1e-1
+                g['lr'] = 1e-2
         optim_generator.zero_grad()
         t_loss = transfer_loss(data, target, args.eps, args.lp, critic1, critic2, generator, args.device)
         t_loss.backward()
