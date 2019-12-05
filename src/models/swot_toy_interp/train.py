@@ -122,26 +122,29 @@ def train(args):
 
         batchx, iter1 = sample(iter1, train_loader1)
         data = batchx.to(args.device)
+        batchx, iter1 = sample(iter1, train_loader1)
+        input_data = batchx.to(args.device)
         batchy, iter2 = sample(iter2, train_loader2)
         datay = batchy.to(args.device)
         for _ in range(args.d_updates):
             optim_criticx.zero_grad()
-            r_loss, g_loss, p = disc_loss_generation(data, data, args.eps, args.lp, criticx)
+            r_loss, g_loss, p = disc_loss_generation(input_data, data, args.eps, args.lp, criticx)
             (r_loss + g_loss + p).backward(mone)
             optim_criticx.step()
 
             optim_criticy.zero_grad()
-            r_loss, g_loss, p = disc_loss_generation(data, datay, args.eps, args.lp, criticy)
+            r_loss, g_loss, p = disc_loss_generation(input_data, datay, args.eps, args.lp, criticy)
             (r_loss + g_loss + p).backward(mone)
             optim_criticy.step()
 
         optim_generator.zero_grad()
         t_ = torch.distributions.beta.Beta(args.alpha, args.alpha).sample_n(args.nt).to(args.device)
         t = torch.stack([t_] * data.shape[0]).transpose(0, 1).reshape(-1, 1)
+        tinputdata = torch.cat([input_data]*args.nt)
         tdata = torch.cat([data]*args.nt)
         tdatay = torch.cat([datay]*args.nt)
-        t_lossx = transfer_loss(tdata, tdata, args.nt, t, args.eps, args.lp, criticx, generator)**args.p_exp
-        t_lossy = transfer_loss(tdata, tdatay, args.nt, t, args.eps, args.lp, criticy, generator)**args.p_exp
+        t_lossx = transfer_loss(tinputdata, tdata, args.nt, t, args.eps, args.lp, criticx, generator)**args.p_exp
+        t_lossy = transfer_loss(tinputdata, tdatay, args.nt, t, args.eps, args.lp, criticy, generator)**args.p_exp
         t_loss = ((1-t_)*t_lossx + t_*t_lossy).sum()
         t_loss.backward()
         optim_generator.step()
@@ -152,6 +155,8 @@ def train(args):
             print('Iter: %s' % i, time.time() - t0)
             batchx, titer1 = sample(titer1, test_loader1)
             datax = batchx.to(args.device)
+            batchx, titer1 = sample(titer1, test_loader1)
+            input_data = batchx.to(args.device)
             batchy, titer2 = sample(titer2, test_loader2)
             datay = batchy.to(args.device)
             evaluate(args.visualiser, datax, datax, datay, generator, 'x', args.device)
@@ -161,9 +166,10 @@ def train(args):
             with torch.no_grad():
                 t_ = torch.arange(0, 1.1, 0.1, device=args.device)
                 t = torch.stack([t_]*datax.shape[0]).transpose(0, 1).reshape(-1, 1)
+                tinputdata = torch.cat([input_data]*11)
                 tdata = torch.cat([datax]*11)
                 tdatay = torch.cat([datay]*11)
-                t_lossx = transfer_loss(tdata, tdata, 11, t, args.eps, args.lp, criticx, generator)
+                t_lossx = transfer_loss(tinputdata, tdata, 11, t, args.eps, args.lp, criticx, generator)
                 t_lossy = transfer_loss(tdata, tdatay, 11, t, args.eps, args.lp, criticy, generator)
                 args.visualiser.plot(step=i, data=t_lossx.detach().cpu().numpy(), title=f'Generator loss x')
                 args.visualiser.plot(step=i, data=t_lossy.detach().cpu().numpy(), title=f'Generator loss y')
