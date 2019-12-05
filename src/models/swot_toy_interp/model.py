@@ -28,41 +28,22 @@ class Critic(nn.Module):
 
 
 class Generator(nn.Module):
-    def __init__(self, o_dim, h_dim, **kwargs):
+    def __init__(self, o_dim, h_dim, n_layers, activation, **kwargs):
         super(Generator, self).__init__()
+        if activation == 'relu':
+            act = nn.ReLU(inplace=True)
+        else:
+            act = nn.ELU(inplace=True)
 
-        x = [nn.Linear(o_dim+1, h_dim),
-             nn.ELU(),
-             nn.Linear(h_dim, h_dim),
-             nn.ELU(),
-             nn.Linear(h_dim, h_dim),
-             nn.ELU(),
-             nn.Linear(h_dim, h_dim),
-             nn.ELU(),
-             nn.Linear(h_dim, h_dim),
-             nn.ELU(),
-             nn.Linear(h_dim, h_dim),
-             nn.ELU(),
-             nn.Linear(h_dim, h_dim),
-             nn.ELU(),
-             nn.Linear(h_dim, h_dim),
-             nn.ELU(),
-             nn.Linear(h_dim, h_dim),
-             nn.ELU(),
-             nn.Linear(h_dim, h_dim),
-             nn.ELU(),
-             nn.Linear(h_dim, h_dim),
-             nn.ELU(),
-             nn.Linear(h_dim, h_dim),
-             nn.ELU(),
-             nn.Linear(h_dim, h_dim),
-             nn.ELU(),
-             nn.Linear(h_dim, h_dim),
-             nn.ELU(),
-             nn.Linear(h_dim, o_dim)]
+        x = []
+        dim = o_dim
+        for _ in range(n_layers):
+            x += [nn.Linear(dim, h_dim), act]
+            dim = h_dim
+
+        x += [nn.Linear(h_dim, o_dim)]
 
         self.x = nn.Sequential(*x)
 
-    def forward(self, z, t):
-        o = torch.cat((z, t), 1)
-        return self.x(o)
+    def forward(self, z):
+        return self.x(z)

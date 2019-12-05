@@ -170,7 +170,7 @@ def train(args):
                 tdata = torch.cat([datax]*11)
                 tdatay = torch.cat([datay]*11)
                 t_lossx = transfer_loss(tinputdata, tdata, 11, t, args.eps, args.lp, criticx, generator)
-                t_lossy = transfer_loss(tdata, tdatay, 11, t, args.eps, args.lp, criticy, generator)
+                t_lossy = transfer_loss(tinputdata, tdatay, 11, t, args.eps, args.lp, criticy, generator)
                 args.visualiser.plot(step=i, data=t_lossx.detach().cpu().numpy(), title=f'Generator loss x')
                 args.visualiser.plot(step=i, data=t_lossy.detach().cpu().numpy(), title=f'Generator loss y')
             args.visualiser.plot(step=i, data=p.detach().cpu().numpy(), title=f'Penalty')
