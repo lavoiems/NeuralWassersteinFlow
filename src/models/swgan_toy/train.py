@@ -34,8 +34,8 @@ def transfer_loss(data, target, eps, lp, critic1, critic2, generator, device):
     target_ = target.view(target.shape[0], -1).unsqueeze(1)
     H = torch.clamp(u_ + v_ - (torch.abs(target_ - data_)**lp).sum(2), 0)
     H = H/(2*eps)
-    gen_ = gen.view(gen.shape[0], -1).unsqueeze(1)
-    loss = (torch.abs(target_ - gen_)**lp).sum(2)#*H.detach()
+    gen_ = gen.view(gen.shape[0], -1).unsqueeze(0)
+    loss = (torch.abs(target_ - gen_)**lp).sum(2)*H.detach()
     return loss.mean()
 
 
@@ -62,20 +62,6 @@ def evaluate(visualiser, data, target, generator, critic1, critic2, id, device):
     plt.xlim(-8,8)
     plt.ylim(-8,8)
     plt.scatter(*data.cpu().numpy().transpose(), c=color_val)
-
-    u = critic1(data)
-    v = critic2(target)
-    u_ = u.unsqueeze(0)
-    v_ = v.unsqueeze(1)
-    data_ = data.view(data.shape[0], -1).unsqueeze(0)
-    target_ = target.view(target.shape[0], -1).unsqueeze(1)
-    H = torch.clamp(u_ + v_ - (torch.abs(target_ - data_)**2).sum(2), 0)
-    H = H/(2*0.1)
-    H = H.mean(0)
-    H = target*H.unsqueeze(1)
-    delta = (H - data).abs_()
-    for da, de in zip(data.cpu().numpy(), delta.cpu().numpy()):
-        plt.arrow(da[0], da[1], de[0], de[1])
 
     visualiser.matplotlib(fig, 'data', f'{id}0')
     plt.clf()
