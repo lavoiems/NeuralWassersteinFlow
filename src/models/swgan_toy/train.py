@@ -20,7 +20,7 @@ def disc_loss_generation(data, target, eps, lp, critic1, critic2):
     target_ = target.view(target.shape[0], -1).unsqueeze(1)
     p = (u_ + v_ - (torch.abs(target_ - data_)**lp).sum(2))
     p.clamp_(0)
-    p = -(1/(2*eps))*p**2
+    p = -(1/(4*eps))*p**2
     return u.mean(), v.mean(), p.mean()
 
 
@@ -33,7 +33,7 @@ def transfer_loss(data, target, eps, lp, critic1, critic2, generator, device):
     data_ = data.view(data.shape[0], -1).unsqueeze(0)
     target_ = target.view(target.shape[0], -1).unsqueeze(1)
     H = torch.clamp(u_ + v_ - (torch.abs(target_ - data_)**lp).sum(2), 0)
-    H = H/eps
+    H = H/(2*eps)
     gen_ = gen.view(gen.shape[0], -1).unsqueeze(1)
     loss = (torch.abs(target_ - gen_)**lp).sum(2)#*H.detach()
     return loss.mean()
@@ -51,7 +51,7 @@ def define_models(shape1, **parameters):
 
 
 @torch.no_grad()
-def evaluate(visualiser, data, target, generator, id, device):
+def evaluate(visualiser, data, target, generator, critic1, critic2, id, device):
     fig = plt.figure()
     jet = plt.get_cmap('jet')
     alphas = data.sum(1)
@@ -60,6 +60,20 @@ def evaluate(visualiser, data, target, generator, id, device):
     color_val = scalarMap.to_rgba(alphas.cpu())
 
     plt.scatter(*data.cpu().numpy().transpose(), c=color_val)
+
+    u = critic1(data)
+    v = critic2(target)
+    u_ = u.unsqueeze(0)
+    v_ = v.unsqueeze(1)
+    data_ = data.view(data.shape[0], -1).unsqueeze(0)
+    target_ = target.view(target.shape[0], -1).unsqueeze(1)
+    H = torch.clamp(u_ + v_ - (torch.abs(target_ - data_)**2).sum(2), 0)
+    H = H/(2*0.1)
+    H = H.mean(0)
+    H = target*H
+    delta = (target - data).abs_()
+    plt.arrow(data[:,0], data[:,1], delta[:,0], delta[:,1])
+
     visualiser.matplotlib(fig, 'data', f'{id}0')
     plt.clf()
 
@@ -128,7 +142,7 @@ def train(args):
             data = batchx.to(args.device)
             batchy, titer2 = sample(titer2, test_loader2)
             target = batchy.to(args.device)
-            evaluate(args.visualiser, data, target, generator, i, args.device)
+            evaluate(args.visualiser, data, target, generator, critic1, critic2, i, args.device)
             d_loss = (r_loss+g_loss).detach().cpu().numpy()
             args.visualiser.plot(step=i, data=d_loss, title=f'Critic loss')
             #args.visualiser.plot(step=i, data=t_loss.detach().cpu().numpy(), title=f'Generator loss')
