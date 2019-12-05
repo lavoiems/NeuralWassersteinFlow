@@ -119,11 +119,10 @@ def train(args):
             optim_critic1.step()
             optim_critic2.step()
 
-        if i > 200:
-            optim_generator.zero_grad()
-            t_loss = transfer_loss(data, target, args.eps, args.lp, critic1, critic2, generator, args.device)
-            t_loss.backward()
-            optim_generator.step()
+        optim_generator.zero_grad()
+        t_loss = transfer_loss(data, target, args.eps, args.lp, critic1, critic2, generator, args.device)
+        t_loss.backward()
+        optim_generator.step()
 
         if i % args.evaluate == 0:
             generator.eval()
