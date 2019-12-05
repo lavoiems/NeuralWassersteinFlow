@@ -43,7 +43,7 @@ def transfer_loss(data, target, nt, t, eps, lp, critic, generator):
     target_ = target.view(target.shape[0], -1).unsqueeze(0)
     H = torch.clamp(u_ + v_ - (torch.abs(data_ - target_)**lp).sum(2), 0)
     H = 1/eps*H
-    gen_ = gen.view(gen.shape[0], -1).unsqueeze(1)
+    gen_ = gen.view(gen.shape[0], -1).unsqueeze(0)
     loss = (torch.abs(target_ - gen_)**lp).sum(2)*H.detach()
     loss = loss.view(nt, -1).mean(1)
     return loss
