@@ -17,9 +17,9 @@ def disc_loss_generation(data, target, eps, lp, critic1, critic2):
     v_ = v.unsqueeze(1)
     data_ = data.view(data.shape[0], -1).unsqueeze(0)
     target_ = target.view(target.shape[0], -1).unsqueeze(1)
-    p = (u_ + v_ - (torch.abs(target_ - data_)**lp).sum(2))
+    p = (u_ - v_ - (torch.abs(target_ - data_)**lp).sum(2))
     p.clamp_(0)
-    p = -(1/(4*eps))*p**2
+    p = (1/(2*eps))*p**2
     return u.mean(), v.mean(), p.mean()
 
 
@@ -31,8 +31,8 @@ def transfer_loss(data, target, eps, lp, critic1, critic2, generator, device):
     v_ = v.unsqueeze(1)
     data_ = data.view(data.shape[0], -1).unsqueeze(0)
     target_ = target.view(target.shape[0], -1).unsqueeze(1)
-    H = torch.clamp(u_ + v_ - (torch.abs(target_ - data_)**lp).sum(2), 0)
-    H = H/(2*eps)
+    H = torch.clamp(u_ - v_ - (torch.abs(target_ - data_)**lp).sum(2), 0)
+    H = H/eps
     gen_ = gen.view(gen.shape[0], -1).unsqueeze(1)
     loss = (torch.abs(target_ - gen_)**lp).sum(2)*H.detach()
     return loss.mean()
@@ -111,7 +111,7 @@ def train(args):
             optim_critic1.zero_grad()
             optim_critic2.zero_grad()
             r_loss, g_loss, p = disc_loss_generation(data, target, args.eps, args.lp, critic1, critic2)
-            (r_loss + g_loss + p).backward(mone)
+            (r_loss - g_loss - p).backward(mone)
             optim_critic1.step()
             optim_critic2.step()
 
