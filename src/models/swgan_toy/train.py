@@ -4,6 +4,7 @@ from torch import optim
 import matplotlib.pyplot as plt
 import matplotlib.cm as cmx
 import matplotlib.colors as colors
+import torch.nn.functional as F
 
 from common.util import sample, save_models
 from common.initialize import initialize, infer_iteration
