@@ -14,10 +14,10 @@ def compute_fc(x, y, lp, critic):
     x_ = x.view(x.shape[0], -1).unsqueeze(0)
     y_ = y.view(y.shape[0], -1).unsqueeze(1)
 
-    cost = (x_ - y_).abs().pow(lp)
-    cost = 1/lp*cost.sum(2)
-    psi = (critic(x).unsqueeze(1)-cost)
-    return psi.min(1)[0]
+    cost = (x_ - y_).abs().pow(lp).sum(2)
+    cost = 1/lp*cost
+    psi = critic(x).unsqueeze(0) - cost
+    return psi.max(1)[0]
 
 
 def disc_loss_generation(data, target, eps, lp, critic):
@@ -27,7 +27,7 @@ def disc_loss_generation(data, target, eps, lp, critic):
     v_ = v.unsqueeze(1)
     data_ = data.view(data.shape[0], -1).unsqueeze(0)
     target_ = target.view(data.shape[0], -1).unsqueeze(1)
-    p = (u_ + v_ - (torch.abs(target_ - data_)**lp).sum(2))
+    p = (u_ - v_ - (torch.abs(target_ - data_)**lp).sum(2))
     p.clamp_(0)
     p = -(1/(4*eps))*p**2
     return u.mean(), v.mean(), p.mean()
@@ -41,7 +41,7 @@ def transfer_loss(data, target, eps, lp, critic, generator, device):
     v_ = v.unsqueeze(1)
     data_ = data.view(data.shape[0], -1).unsqueeze(0)
     target_ = target.view(target.shape[0], -1).unsqueeze(1)
-    H = torch.clamp(u_ + v_ - (torch.abs(target_ - data_)**lp).sum(2), 0)
+    H = torch.clamp(u_ - v_ - (torch.abs(target_ - data_)**lp).sum(2), 0)
     H = 1/eps*H
     gen_ = gen.view(gen.shape[0], -1).unsqueeze(0)
     loss = (torch.abs(target_ - gen_)**lp).sum(2)*H.detach()
