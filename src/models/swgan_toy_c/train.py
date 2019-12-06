@@ -25,8 +25,8 @@ def disc_loss_generation(data, target, eps, lp, critic):
     v = compute_fc(data, target, lp, critic)
     u_ = u.unsqueeze(0)
     v_ = v.unsqueeze(1)
-    data_ = data.view(data.shape[0], -1).unsqueeze(1)
-    target_ = target.view(data.shape[0], -1).unsqueeze(0)
+    data_ = data.view(data.shape[0], -1).unsqueeze(0)
+    target_ = target.view(data.shape[0], -1).unsqueeze(1)
     p = (u_ + v_ - (torch.abs(target_ - data_)**lp).sum(2))
     p.clamp_(0)
     p = -(1/(4*eps))*p**2
@@ -39,8 +39,8 @@ def transfer_loss(data, target, eps, lp, critic, generator, device):
     v = compute_fc(data, target, lp, critic)
     u_ = u.unsqueeze(0)
     v_ = v.unsqueeze(1)
-    data_ = data.view(data.shape[0], -1).unsqueeze(1)
-    target_ = target.view(target.shape[0], -1).unsqueeze(0)
+    data_ = data.view(data.shape[0], -1).unsqueeze(0)
+    target_ = target.view(target.shape[0], -1).unsqueeze(1)
     H = torch.clamp(u_ + v_ - (torch.abs(target_ - data_)**lp).sum(2), 0)
     H = 1/eps*H
     gen_ = gen.view(gen.shape[0], -1).unsqueeze(0)
