@@ -29,7 +29,7 @@ def disc_loss_generation(data, target, eps, lp, critic):
     target_ = target.view(data.shape[0], -1).unsqueeze(0)
     p = (u_ + v_ - (torch.abs(target_ - data_)**lp).sum(2))
     p.clamp_(0)
-    p = -(1/(2*eps))*p**2
+    p = -(1/(4*eps))*p**2
     return u.mean(), v.mean(), p.mean()
 
 
@@ -43,7 +43,7 @@ def transfer_loss(data, target, eps, lp, critic, generator, device):
     target_ = target.view(target.shape[0], -1).unsqueeze(0)
     H = torch.clamp(u_ + v_ - (torch.abs(target_ - data_)**lp).sum(2), 0)
     H = 1/eps*H
-    gen_ = gen.view(gen.shape[0], -1).unsqueeze(1)
+    gen_ = gen.view(gen.shape[0], -1).unsqueeze(0)
     loss = (torch.abs(target_ - gen_)**lp).sum(2)*H.detach()
     return loss.mean()
 
