@@ -16,7 +16,7 @@ def compute_fc(x, y, lp, critic):
 
     cost = (x_ - y_).abs().pow(lp)
     cost = 1/lp*cost.sum(2)
-    psi = (cost - critic(x).unsqueeze(1))
+    psi = (critic(x).unsqueeze(0)-cost)
     return psi.min(1)[0]
 
 
