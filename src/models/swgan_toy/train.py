@@ -116,7 +116,7 @@ def train(args):
             optim_critic1.zero_grad()
             optim_critic2.zero_grad()
             r_loss, g_loss, p = disc_loss_generation(data, target, args.eps, args.lp, critic1, critic2)
-            (r_loss + g_loss + p).backward(mone)
+            (r_loss + g_loss + p).backward()
             optim_critic1.step()
             optim_critic2.step()
 
