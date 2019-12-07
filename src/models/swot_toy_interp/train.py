@@ -62,22 +62,24 @@ def evaluate(visualiser, data, data1, target, generator, id, device):
     cNorm = colors.Normalize(vmin=alphas.min(), vmax=alphas.max())
     scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=jet)
     color_val = scalarMap.to_rgba(alphas.cpu())
-    plt.xlim(-8,8)
-    plt.ylim(-8,8)
+    plt.xlim(0,1)
+    plt.ylim(0,1)
     plt.scatter(*data1.cpu().numpy().transpose(), c=color_val)
     visualiser.matplotlib(fig, 'target1', f'{id}0')
     plt.clf()
-    plt.xlim(-8,8)
-    plt.ylim(-8,8)
+    plt.xlim(0,1)
+    plt.ylim(0,1)
 
     plt.scatter(*target.cpu().numpy().transpose())
     visualiser.matplotlib(fig, 'target2', f'{id}0')
     plt.clf()
     card = 11
     for i in range(card):
-        plt.xlim(-8,8)
-        plt.ylim(-8,8)
-        t = torch.FloatTensor([i/(card-1)]).repeat(data.shape[0], 1).to(device)
+        plt.xlim(0,1)
+        plt.ylim(0,1)
+        t_ = torch.FloatTensor([1]).to(device)
+        t = torch.stack([t_] * data.shape[0]).transpose(0, 1).reshape(-1, 1)
+        #t = torch.FloatTensor([i/(card-1)]).repeat(data.shape[0], 1).to(device)
         X = generator(data, t)
         plt.scatter(*X.cpu().numpy().transpose(), c=color_val)
         visualiser.matplotlib(fig, f'data{i}', f'{id}0')
@@ -121,19 +123,19 @@ def train(args):
         criticy2.train()
 
         for _ in range(args.d_updates):
-            batchx, iter1 = sample(iter1, train_loader1)
-            data = batchx.to(args.device)
+            #batchx, iter1 = sample(iter1, train_loader1)
+            #data = batchx.to(args.device)
             batchx, iter1 = sample(iter1, train_loader1)
             input_data = batchx.to(args.device)
             batchy, iter2 = sample(iter2, train_loader2)
             datay = batchy.to(args.device)
 
-            optim_criticx1.zero_grad()
-            optim_criticx2.zero_grad()
-            r_loss, g_loss, p = disc_loss_generation(input_data, data, args.eps, args.lp, criticx1, criticx2)
-            (r_loss + g_loss + p).backward(mone)
-            optim_criticx1.step()
-            optim_criticx2.step()
+            #optim_criticx1.zero_grad()
+            #optim_criticx2.zero_grad()
+            #r_loss, g_loss, p = disc_loss_generation(input_data, data, args.eps, args.lp, criticx1, criticx2)
+            #(r_loss + g_loss + p).backward(mone)
+            #optim_criticx1.step()
+            #optim_criticx2.step()
 
             optim_criticy1.zero_grad()
             optim_criticy2.zero_grad()
@@ -143,17 +145,17 @@ def train(args):
             optim_criticy2.step()
 
         optim_generator.zero_grad()
-        t_ = torch.randn(args.nt, device=args.device)
-        t = torch.stack([t_] * data.shape[0]).transpose(0, 1).reshape(-1, 1)
+        #t_ = torch.randn(args.nt, device=args.device)
+        t_ = torch.FloatTensor([1]*args.nt).to(args.device)
+        t = torch.stack([t_] * input_data.shape[0]).transpose(0, 1).reshape(-1, 1)
         tinputdata = torch.cat([input_data]*args.nt)
-        tdata = torch.cat([data]*args.nt)
+        #tdata = torch.cat([data]*args.nt)
         tdatay = torch.cat([datay]*args.nt)
-        t_lossx = transfer_loss(tinputdata, tdata, args.nt, t, args.eps, args.lp, criticx1, criticx2, generator)**args.p_exp
+        #t_lossx = transfer_loss(tinputdata, tdata, args.nt, t, args.eps, args.lp, criticx1, criticx2, generator)**args.p_exp
         t_lossy = transfer_loss(tinputdata, tdatay, args.nt, t, args.eps, args.lp, criticy1, criticy2, generator)**args.p_exp
-        t_loss = ((1-t_)*t_lossx + t_*t_lossy).sum()
-        t_loss.backward()
+        t_lossy.backward()
+        #t_loss = ((1-t_)*t_lossx + t_*t_lossy).sum()
         optim_generator.step()
-        t_loss = t_loss.detach().cpu().numpy()
 
         if i % args.evaluate == 0:
             generator.eval()
@@ -167,7 +169,7 @@ def train(args):
             evaluate(args.visualiser, datax, datax, datay, generator, 'x', args.device)
             d_loss = (r_loss+g_loss).detach().cpu().numpy()
             args.visualiser.plot(step=i, data=d_loss, title=f'Critic loss')
-            args.visualiser.plot(step=i, data=t_loss, title=f'generator loss')
+            #args.visualiser.plot(step=i, data=t_loss, title=f'generator loss')
             with torch.no_grad():
                 t_ = torch.arange(0, 1.1, 0.1, device=args.device)
                 t = torch.stack([t_]*datax.shape[0]).transpose(0, 1).reshape(-1, 1)

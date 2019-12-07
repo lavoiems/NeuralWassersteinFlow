@@ -30,7 +30,6 @@ class Generator(nn.Module):
         super(Generator, self).__init__()
 
         x = [nn.Linear(o_dim+1, h_dim),
-             nn.Linear(h_dim, h_dim),
              nn.ReLU(inplace=True),
              nn.Linear(h_dim, h_dim),
              nn.ReLU(inplace=True),
