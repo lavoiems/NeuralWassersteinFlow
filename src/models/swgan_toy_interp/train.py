@@ -10,12 +10,9 @@ from common.initialize import initialize, infer_iteration
 from . import model
 
 
-def disc_loss_generation(data, target, nz, eps, alpha, lp, critic1, critic2, generator, device):
-    t = torch.distributions.beta.Beta(alpha, alpha).sample_n(1).to(device)
-    t = torch.stack([t]*data.shape[0])
-    gen = generator(data, t).detach()
-    u = critic1(target, t)
-    v = critic2(gen, t)
+def disc_loss_generation(data, target, eps, lp, critic1, critic2):
+    u = critic1(data)
+    v = critic2(target)
     u_ = u.unsqueeze(0)
     v_ = v.unsqueeze(1)
     data_ = data.view(data.shape[0], -1).unsqueeze(0)
@@ -26,10 +23,10 @@ def disc_loss_generation(data, target, nz, eps, alpha, lp, critic1, critic2, gen
     return u.mean(), v.mean(), p.mean()
 
 
-def transfer_loss(data, target, nz, t, eps, lp, critic1, critic2, generator, device):
+def transfer_loss(data, target, t, eps, lp, critic1, critic2, generator):
     gen = generator(data, t)
-    u = critic1(data, t)
-    v = critic2(target, t)
+    u = critic1(data)
+    v = critic2(target)
     u_ = u.unsqueeze(0)
     v_ = v.unsqueeze(1)
     data_ = data.view(data.shape[0], -1).unsqueeze(0)
@@ -131,7 +128,7 @@ def train(args):
             input_data = batchx.to(args.device)
             optim_criticx1.zero_grad()
             optim_criticx2.zero_grad()
-            r_loss, g_loss, p = disc_loss_generation(input_data, data, args.z_dim, args.eps, args.alpha, args.lp, criticx1, criticx2, generator, args.device)
+            r_loss, g_loss, p = disc_loss_generation(input_data, data, args.eps, args.lp, criticx1, criticx2)
             (r_loss + g_loss + p).backward(mone)
             optim_criticx1.step()
             optim_criticx2.step()
@@ -140,7 +137,7 @@ def train(args):
             datay = batchy.to(args.device)
             optim_criticy1.zero_grad()
             optim_criticy2.zero_grad()
-            r_loss, g_loss, p = disc_loss_generation(input_data, datay, args.z_dim, args.eps, args.alpha, args.lp, criticy1, criticy2, generator, args.device)
+            r_loss, g_loss, p = disc_loss_generation(input_data, datay, args.eps, args.lp, criticy1, criticy2)
             (r_loss + g_loss + p).backward(mone)
             optim_criticy1.step()
             optim_criticy2.step()
@@ -148,8 +145,8 @@ def train(args):
         optim_generator.zero_grad()
         t_ = torch.distributions.beta.Beta(args.alpha, args.alpha).sample_n(1).to(args.device)
         t = torch.stack([t_]*data.shape[0])
-        t_lossx = transfer_loss(input_data, data, args.z_dim, t, args.eps, args.lp, criticx1, criticx2, generator, args.device)**args.p_exp
-        t_lossy = transfer_loss(input_data, datay, args.z_dim, t, args.eps, args.lp, criticy1, criticy2, generator, args.device)**args.p_exp
+        t_lossx = transfer_loss(input_data, data, t, args.eps, args.lp, criticx1, criticx2, generator)**args.p_exp
+        t_lossy = transfer_loss(input_data, datay, t, args.eps, args.lp, criticy1, criticy2, generator)**args.p_exp
         ((1-t_)*t_lossx + t_*t_lossy).backward()
         optim_generator.step()
 
