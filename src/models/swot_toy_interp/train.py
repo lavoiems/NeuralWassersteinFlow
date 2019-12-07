@@ -143,7 +143,7 @@ def train(args):
             optim_criticy2.step()
 
         optim_generator.zero_grad()
-        t_ = torch.randn(data.shape[0], args.nt, device=args.device)
+        t_ = torch.randn(args.nt, device=args.device)
         t = torch.stack([t_] * data.shape[0]).transpose(0, 1).reshape(-1, 1)
         tinputdata = torch.cat([input_data]*args.nt)
         tdata = torch.cat([data]*args.nt)
