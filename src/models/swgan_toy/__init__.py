@@ -3,7 +3,6 @@ from common.loaders import toy
 
 
 def parse_args(parser):
-    parser.add_argument('--dataset1', type=str, default='gaussian')
     parser.add_argument('--h-dim', type=int, default=64)
     parser.add_argument('--lr', type=float, default=2e-4)
     parser.add_argument('--beta1', type=float, default=0.5)
