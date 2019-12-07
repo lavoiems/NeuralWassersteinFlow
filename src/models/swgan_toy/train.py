@@ -58,8 +58,8 @@ def evaluate(visualiser, data, target, generator, critic1, critic2, id, device):
     scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=jet)
     color_val = scalarMap.to_rgba(alphas.cpu())
 
-    plt.xlim(-8,8)
-    plt.ylim(-8,8)
+    #plt.xlim(0,1)
+    #plt.ylim(0,1)
     plt.scatter(*data.cpu().numpy().transpose(), c=color_val)
 
     visualiser.matplotlib(fig, 'data', f'{id}0')
@@ -104,6 +104,17 @@ def train(args):
     t0 = time.time()
     critic1.train()
     critic2.train()
+    for _ in range(100):
+        batchx, iter1 = sample(iter1, train_loader1)
+        data = batchx.to(args.device)
+        batchy, iter2 = sample(iter2, train_loader2)
+        target = batchy.to(args.device)
+        optim_critic1.zero_grad()
+        optim_critic2.zero_grad()
+        r_loss, g_loss, p = disc_loss_generation(data, target, args.eps, args.lp, critic1, critic2)
+        (r_loss + g_loss + p).backward(mone)
+        optim_critic1.step()
+        optim_critic2.step()
     for i in range(iteration, args.iterations):
         generator.train()
         critic1.train()

@@ -1,3 +1,4 @@
+import os
 import math
 import random
 import torch
@@ -105,9 +106,11 @@ def color_block(batch_size):
 
 
 def png(batch_size, filename):
-    image = Image.open(filename)
+    path = os.path.join(os.getcwd(), filename)
+    image = Image.open(path).convert('RGB')
     image = np.array(image)[:,:,0]
-    image = 255-image
+    image = image < 128
+    image = 255 * image
     imgsize = len(image)
     image = image.reshape(-1)
     px = image / image.sum()

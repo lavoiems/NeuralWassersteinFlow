@@ -19,10 +19,11 @@ def execute(args):
     #dataset2 = toy.mixture2(args.train_batch_size)
     #dataset1 = toy.spiral(1, args.train_batch_size, translationx=0, translationy=0)
     #dataset2 = toy.spiral(-1, args.train_batch_size, translationx=0, translationy=0)
-    dataset1 = toy.png(args.train_batch_size, 'duck.png')
-    dataset2 = toy.png(args.train_batch_size, 'heart.png')
-    tdataset1 = toy.png(args.test_batch_size, 'duck.png')
-    tdataset2 = toy.png(args.test_batch_size, 'heart.png')
+
+    dataset1 = toy.png(args.train_batch_size, 'square.png')
+    dataset2 = toy.png(args.train_batch_size, 'circle.png')
+    tdataset1 = toy.png(args.test_batch_size, 'square.png')
+    tdataset2 = toy.png(args.test_batch_size, 'circle.png')
     args.loaders1 = (dataset1, tdataset1)
     args.loaders2 = (dataset2, tdataset2)
     args.shape1 = 2
