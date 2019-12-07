@@ -18,8 +18,10 @@ def execute(args):
     print(args)
     #dataset1 = toy.gaussian2(args.train_batch_size)
     #dataset2 = toy.mixture2(args.train_batch_size)
-    dataset1 = toy.spiral(1, args.train_batch_size, translationx=0, translationy=0)
-    dataset2 = toy.spiral(-1, args.train_batch_size, translationx=0, translationy=0)
+    #dataset1 = toy.spiral(1, args.train_batch_size, translationx=0, translationy=0)
+    #dataset2 = toy.spiral(-1, args.train_batch_size, translationx=0, translationy=0)
+    dataset1 = toy.png(args.train_batch_size, 'duck.png')
+    dataset2 = toy.png(args.train_batch_size, 'heart.png')
     args.loaders1 = (dataset1, dataset1)
     args.loaders2 = (dataset2, dataset2)
     args.shape1 = 2
