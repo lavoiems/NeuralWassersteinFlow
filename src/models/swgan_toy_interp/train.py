@@ -30,7 +30,7 @@ def transfer_loss(data, target, t, eps, lp, critic1, critic2, generator):
     u_ = u.unsqueeze(0)
     v_ = v.unsqueeze(1)
     data_ = data.view(data.shape[0], -1).unsqueeze(0)
-    target_ = target.view(data.shape[0], -1).unsqueeze(1)
+    target_ = target.view(target.shape[0], -1).unsqueeze(1)
     H = torch.clamp(u_ + v_ - (torch.abs(data_ - target_)**lp).sum(2), 0)
     H = H/(2*eps)
     gen_ = gen.view(gen.shape[0], -1).unsqueeze(0)
@@ -126,6 +126,9 @@ def train(args):
             data = batchx.to(args.device)
             batchx, iter1 = sample(iter1, train_loader1)
             input_data = batchx.to(args.device)
+            batchy, iter2 = sample(iter2, train_loader2)
+            datay = batchy.to(args.device)
+
             optim_criticx1.zero_grad()
             optim_criticx2.zero_grad()
             r_loss, g_loss, p = disc_loss_generation(input_data, data, args.eps, args.lp, criticx1, criticx2)
@@ -133,8 +136,6 @@ def train(args):
             optim_criticx1.step()
             optim_criticx2.step()
 
-            batchy, iter2 = sample(iter2, train_loader2)
-            datay = batchy.to(args.device)
             optim_criticy1.zero_grad()
             optim_criticy2.zero_grad()
             r_loss, g_loss, p = disc_loss_generation(input_data, datay, args.eps, args.lp, criticy1, criticy2)

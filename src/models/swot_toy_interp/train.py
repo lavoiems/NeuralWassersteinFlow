@@ -10,33 +10,23 @@ from common.initialize import initialize, infer_iteration
 from . import model
 
 
-def compute_fc(x, y, lp, critic):
-    x_ = x.view(x.shape[0], -1).unsqueeze(0)
-    y_ = y.view(y.shape[0], -1).unsqueeze(1)
-
-    cost = (x_ - y_).abs().pow(lp)
-    cost = 1/lp*cost.sum(2)
-    psi = (cost - critic(x).unsqueeze(0))
-    return psi.min(1)[0]
-
-
-def disc_loss_generation(data, target, eps, lp, critic):
-    u = critic(data)
-    v = compute_fc(data, target, lp, critic)
+def disc_loss_generation(data, target, eps, lp, critic1, critic2):
+    u = critic1(data)
+    v = critic2(target)
     u_ = u.unsqueeze(0)
     v_ = v.unsqueeze(1)
     data_ = data.view(data.shape[0], -1).unsqueeze(0)
-    target_ = target.view(data.shape[0], -1).unsqueeze(1)
+    target_ = target.view(target.shape[0], -1).unsqueeze(1)
     p = (u_ + v_ - (torch.abs(data_ - target_)**lp).sum(2))
     p.clamp_(0)
-    p = -(1/(4*eps))*p**2
+    p = -(1/(2*eps))*p**2
     return u.mean(), v.mean(), p.mean()
 
 
-def transfer_loss(data, target, nt, t, eps, lp, critic, generator):
+def transfer_loss(data, target, nt, t, eps, lp, critic1, critic2, generator):
     gen = generator(data, t)
-    u = critic(data)
-    v = compute_fc(data, target, lp, critic)
+    u = critic1(data)
+    v = critic2(target)
     u_ = u.unsqueeze(0)
     v_ = v.unsqueeze(1)
     data_ = data.view(data.shape[0], -1).unsqueeze(0)
@@ -50,13 +40,17 @@ def transfer_loss(data, target, nt, t, eps, lp, critic, generator):
 
 
 def define_models(shape1, **parameters):
-    criticx = model.Critic(shape1, **parameters)
-    criticy = model.Critic(shape1, **parameters)
+    criticx1 = model.Critic(shape1, **parameters)
+    criticx2 = model.Critic(shape1, **parameters)
+    criticy1 = model.Critic(shape1, **parameters)
+    criticy2 = model.Critic(shape1, **parameters)
     generator = model.Generator(shape1, **parameters)
     return {
         'generator': generator,
-        'criticx': criticx,
-        'criticy': criticy,
+        'criticx1': criticx1,
+        'criticx2': criticx2,
+        'criticy1': criticy1,
+        'criticy2': criticy2,
     }
 
 
@@ -100,14 +94,18 @@ def train(args):
     initialize(models, args.reload, args.save_path, args.model_path)
 
     generator = models['generator'].to(args.device)
-    criticx = models['criticx'].to(args.device)
-    criticy = models['criticy'].to(args.device)
+    criticx1 = models['criticx1'].to(args.device)
+    criticx2 = models['criticx2'].to(args.device)
+    criticy1 = models['criticy1'].to(args.device)
+    criticy2 = models['criticy2'].to(args.device)
     print(generator)
-    print(criticx)
-    print(criticy)
+    print(criticx1)
+    print(criticy1)
 
-    optim_criticx = optim.Adam(criticx.parameters(), lr=args.lr, betas=(args.beta1, args.beta2))
-    optim_criticy = optim.Adam(criticy.parameters(), lr=args.lr, betas=(args.beta1, args.beta2))
+    optim_criticx1 = optim.Adam(criticx1.parameters(), lr=args.lr, betas=(args.beta1, args.beta2))
+    optim_criticx2 = optim.Adam(criticx2.parameters(), lr=args.lr, betas=(args.beta1, args.beta2))
+    optim_criticy1 = optim.Adam(criticy1.parameters(), lr=args.lr, betas=(args.beta1, args.beta2))
+    optim_criticy2 = optim.Adam(criticy2.parameters(), lr=args.lr, betas=(args.beta1, args.beta2))
     optim_generator = optim.Adam(generator.parameters(), lr=args.lr, betas=(args.beta1, args.beta2))
 
     iter1, iter2 = iter(train_loader1), iter(train_loader2)
@@ -117,25 +115,32 @@ def train(args):
     t0 = time.time()
     for i in range(iteration, args.iterations):
         generator.train()
-        criticx.train()
-        criticy.train()
+        criticx1.train()
+        criticx2.train()
+        criticy1.train()
+        criticy2.train()
 
-        batchx, iter1 = sample(iter1, train_loader1)
-        data = batchx.to(args.device)
-        batchx, iter1 = sample(iter1, train_loader1)
-        input_data = batchx.to(args.device)
-        batchy, iter2 = sample(iter2, train_loader2)
-        datay = batchy.to(args.device)
         for _ in range(args.d_updates):
-            optim_criticx.zero_grad()
-            r_loss, g_loss, p = disc_loss_generation(input_data, data, args.eps, args.lp, criticx)
-            (r_loss + g_loss + p).backward(mone)
-            optim_criticx.step()
+            batchx, iter1 = sample(iter1, train_loader1)
+            data = batchx.to(args.device)
+            batchx, iter1 = sample(iter1, train_loader1)
+            input_data = batchx.to(args.device)
+            batchy, iter2 = sample(iter2, train_loader2)
+            datay = batchy.to(args.device)
 
-            optim_criticy.zero_grad()
-            r_loss, g_loss, p = disc_loss_generation(input_data, datay, args.eps, args.lp, criticy)
+            optim_criticx1.zero_grad()
+            optim_criticx2.zero_grad()
+            r_loss, g_loss, p = disc_loss_generation(input_data, data, args.eps, args.lp, criticx1, criticx2)
             (r_loss + g_loss + p).backward(mone)
-            optim_criticy.step()
+            optim_criticx1.step()
+            optim_criticx2.step()
+
+            optim_criticy1.zero_grad()
+            optim_criticy2.zero_grad()
+            r_loss, g_loss, p = disc_loss_generation(input_data, datay, args.eps, args.lp, criticy1, criticy2)
+            (r_loss + g_loss + p).backward(mone)
+            optim_criticy1.step()
+            optim_criticy2.step()
 
         optim_generator.zero_grad()
         t_ = torch.distributions.beta.Beta(args.alpha, args.alpha).sample_n(args.nt).to(args.device)
@@ -143,8 +148,8 @@ def train(args):
         tinputdata = torch.cat([input_data]*args.nt)
         tdata = torch.cat([data]*args.nt)
         tdatay = torch.cat([datay]*args.nt)
-        t_lossx = transfer_loss(tinputdata, tdata, args.nt, t, args.eps, args.lp, criticx, generator)**args.p_exp
-        t_lossy = transfer_loss(tinputdata, tdatay, args.nt, t, args.eps, args.lp, criticy, generator)**args.p_exp
+        t_lossx = transfer_loss(tinputdata, tdata, args.nt, t, args.eps, args.lp, criticx1, criticx2, generator)**args.p_exp
+        t_lossy = transfer_loss(tinputdata, tdatay, args.nt, t, args.eps, args.lp, criticy1, criticy2, generator)**args.p_exp
         t_loss = ((1-t_)*t_lossx + t_*t_lossy).sum()
         t_loss.backward()
         optim_generator.step()
@@ -169,8 +174,8 @@ def train(args):
                 tinputdata = torch.cat([input_data]*11)
                 tdata = torch.cat([datax]*11)
                 tdatay = torch.cat([datay]*11)
-                t_lossx = transfer_loss(tinputdata, tdata, 11, t, args.eps, args.lp, criticx, generator)
-                t_lossy = transfer_loss(tinputdata, tdatay, 11, t, args.eps, args.lp, criticy, generator)
+                t_lossx = transfer_loss(tinputdata, tdata, 11, t, args.eps, args.lp, criticx1, criticx2, generator)
+                t_lossy = transfer_loss(tinputdata, tdatay, 11, t, args.eps, args.lp, criticy1, criticy2, generator)
                 args.visualiser.plot(step=i, data=t_lossx.detach().cpu().numpy(), title=f'Generator loss x')
                 args.visualiser.plot(step=i, data=t_lossy.detach().cpu().numpy(), title=f'Generator loss y')
             args.visualiser.plot(step=i, data=p.detach().cpu().numpy(), title=f'Penalty')

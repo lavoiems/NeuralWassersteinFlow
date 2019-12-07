@@ -14,8 +14,6 @@ def parse_args(parser):
     parser.add_argument('--p-exp', type=int, default=2)
     parser.add_argument('--eps', type=float, default=0.1)
     parser.add_argument('--alpha', type=float, default=1)
-    parser.add_argument('--n-layers', type=int, default=3)
-    parser.add_argument('--activation', type=str, default='relu')
 
 
 def execute(args):

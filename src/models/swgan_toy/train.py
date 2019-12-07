@@ -23,7 +23,7 @@ def disc_loss_generation(data, target, eps, lp, critic1, critic2):
     return u.mean(), v.mean(), p.mean()
 
 
-def transfer_loss(data, target, eps, lp, critic1, critic2, generator, device):
+def transfer_loss(data, target, eps, lp, critic1, critic2, generator):
     gen = generator(data)
     u = critic1(data)
     v = critic2(target)
@@ -132,7 +132,7 @@ def train(args):
             optim_critic2.step()
 
         optim_generator.zero_grad()
-        t_loss = transfer_loss(data, target, args.eps, args.lp, critic1, critic2, generator, args.device)
+        t_loss = transfer_loss(data, target, args.eps, args.lp, critic1, critic2, generator)
         t_loss.backward()
         optim_generator.step()
 
