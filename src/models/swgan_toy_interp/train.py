@@ -127,9 +127,11 @@ def train(args):
         for _ in range(args.d_updates):
             batchx, iter1 = sample(iter1, train_loader1)
             data = batchx.to(args.device)
+            batchx, iter1 = sample(iter1, train_loader1)
+            input_data = batchx.to(args.device)
             optim_criticx1.zero_grad()
             optim_criticx2.zero_grad()
-            r_loss, g_loss, p = disc_loss_generation(data, data, args.z_dim, args.eps, args.alpha, args.lp, criticx1, criticx2, generator, args.device)
+            r_loss, g_loss, p = disc_loss_generation(input_data, data, args.z_dim, args.eps, args.alpha, args.lp, criticx1, criticx2, generator, args.device)
             (r_loss + g_loss + p).backward(mone)
             optim_criticx1.step()
             optim_criticx2.step()
@@ -138,7 +140,7 @@ def train(args):
             datay = batchy.to(args.device)
             optim_criticy1.zero_grad()
             optim_criticy2.zero_grad()
-            r_loss, g_loss, p = disc_loss_generation(data, datay, args.z_dim, args.eps, args.alpha, args.lp, criticy1, criticy2, generator, args.device)
+            r_loss, g_loss, p = disc_loss_generation(input_data, datay, args.z_dim, args.eps, args.alpha, args.lp, criticy1, criticy2, generator, args.device)
             (r_loss + g_loss + p).backward(mone)
             optim_criticy1.step()
             optim_criticy2.step()
@@ -146,8 +148,8 @@ def train(args):
         optim_generator.zero_grad()
         t_ = torch.distributions.beta.Beta(args.alpha, args.alpha).sample_n(1).to(args.device)
         t = torch.stack([t_]*data.shape[0])
-        t_lossx = transfer_loss(data, data, args.z_dim, t, args.eps, args.lp, criticx1, criticx2, generator, args.device)**args.p_exp
-        t_lossy = transfer_loss(data, datay, args.z_dim, t, args.eps, args.lp, criticy1, criticy2, generator, args.device)**args.p_exp
+        t_lossx = transfer_loss(input_data, data, args.z_dim, t, args.eps, args.lp, criticx1, criticx2, generator, args.device)**args.p_exp
+        t_lossy = transfer_loss(input_data, datay, args.z_dim, t, args.eps, args.lp, criticy1, criticy2, generator, args.device)**args.p_exp
         ((1-t_)*t_lossx + t_*t_lossy).backward()
         optim_generator.step()
 

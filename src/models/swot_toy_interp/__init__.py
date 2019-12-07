@@ -26,8 +26,8 @@ def execute(args):
     tdataset2 = toy.mixture2(args.test_batch_size)
     #dataset1 = toy.spiral(1, args.train_batch_size, translationx=0, translationy=0)
     #dataset2 = toy.spiral(-1, args.train_batch_size, translationx=0, translationy=0)
-    args.loaders1 = (dataset1, dataset1)
-    args.loaders2 = (dataset2, dataset2)
+    args.loaders1 = (dataset1, tdataset1)
+    args.loaders2 = (dataset2, tdataset2)
     args.shape1 = 2
 
     train(args)
