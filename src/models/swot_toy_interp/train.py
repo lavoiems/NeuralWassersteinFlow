@@ -168,7 +168,7 @@ def train(args):
             evaluate(args.visualiser, datax, datay, generator, 'x', args.device)
             d_loss = (r_loss+g_loss).detach().cpu().numpy()
             args.visualiser.plot(step=i, data=d_loss, title=f'Critic loss Y')
-            args.visualiser.plot(step=i, data=t_lossy, title=f'Generator loss Y')
+            args.visualiser.plot(step=i, data=t_lossy.detach().cpu().numpy(), title=f'Generator loss Y')
             #args.visualiser.plot(step=i, data=t_loss, title=f'generator loss')
             #with torch.no_grad():
                 #t_ = torch.arange(0, 1.1, 0.1, device=args.device)
