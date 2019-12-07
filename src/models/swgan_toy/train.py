@@ -19,7 +19,7 @@ def disc_loss_generation(data, target, eps, lp, critic1, critic2):
     target_ = target.view(target.shape[0], -1).unsqueeze(1)
     p = u_ + v_ + (torch.abs(target_ - data_)**lp).sum(2)
     p.clamp_(0)
-    p = (1/(eps*2))*p**2
+    p = -(1/(eps*2))*p**2
     return u.mean(), v.mean(), p.mean()
 
 
