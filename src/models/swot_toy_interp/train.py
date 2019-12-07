@@ -151,7 +151,6 @@ def train(args):
         t_lossx = transfer_loss(tinputdata, tdata, args.nt, t, args.eps, args.lp, criticx1, criticx2, generator)**args.p_exp
         t_lossy = transfer_loss(tinputdata, tdatay, args.nt, t, args.eps, args.lp, criticy1, criticy2, generator)**args.p_exp
         t_loss = ((1-t_)*t_lossx + t_*t_lossy).sum()
-        t_loss.backward()
         optim_generator.step()
         t_loss = t_loss.detach().cpu().numpy()
 
