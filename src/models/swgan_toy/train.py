@@ -102,8 +102,6 @@ def train(args):
     titer2 = iter(test_loader2)
     mone = torch.FloatTensor([-1]).to(args.device)
     t0 = time.time()
-    critic1.train()
-    critic2.train()
     for i in range(iteration, args.iterations):
         generator.train()
         critic1.train()

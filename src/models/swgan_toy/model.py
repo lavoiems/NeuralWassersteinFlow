@@ -1,4 +1,4 @@
-import math
+
 from torch import nn
 
 
@@ -25,10 +25,10 @@ class Critic(nn.Module):
 
 
 class Generator(nn.Module):
-    def __init__(self, o_dim, z_dim, h_dim, **kwargs):
+    def __init__(self, o_dim, h_dim, **kwargs):
         super(Generator, self).__init__()
 
-        x = [nn.Linear(z_dim, h_dim),
+        x = [nn.Linear(o_dim, h_dim),
              nn.ReLU(inplace=True),
              nn.Linear(h_dim, h_dim),
              nn.ReLU(inplace=True),
