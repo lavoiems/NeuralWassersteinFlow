@@ -96,16 +96,16 @@ def train(args):
     initialize(models, args.reload, args.save_path, args.model_path)
 
     generator = models['generator'].to(args.device)
-    #criticx1 = models['criticx1'].to(args.device)
-    #criticx2 = models['criticx2'].to(args.device)
+    criticx1 = models['criticx1'].to(args.device)
+    criticx2 = models['criticx2'].to(args.device)
     criticy1 = models['criticy1'].to(args.device)
     criticy2 = models['criticy2'].to(args.device)
     print(generator)
-    #print(criticx1)
+    print(criticx1)
     print(criticy1)
 
-    #optim_criticx1 = optim.Adam(criticx1.parameters(), lr=args.lr, betas=(args.beta1, args.beta2))
-    #optim_criticx2 = optim.Adam(criticx2.parameters(), lr=args.lr, betas=(args.beta1, args.beta2))
+    optim_criticx1 = optim.Adam(criticx1.parameters(), lr=args.lr, betas=(args.beta1, args.beta2))
+    optim_criticx2 = optim.Adam(criticx2.parameters(), lr=args.lr, betas=(args.beta1, args.beta2))
     optim_criticy1 = optim.Adam(criticy1.parameters(), lr=args.lr, betas=(args.beta1, args.beta2))
     optim_criticy2 = optim.Adam(criticy2.parameters(), lr=args.lr, betas=(args.beta1, args.beta2))
     optim_generator = optim.Adam(generator.parameters(), lr=args.lr, betas=(args.beta1, args.beta2))
@@ -117,25 +117,25 @@ def train(args):
     t0 = time.time()
     for i in range(iteration, args.iterations):
         generator.train()
-        #criticx1.train()
-        #criticx2.train()
+        criticx1.train()
+        criticx2.train()
         criticy1.train()
         criticy2.train()
 
         for _ in range(args.d_updates):
-            #batchx, iter1 = sample(iter1, train_loader1)
-            #data = batchx.to(args.device)
+            batchx, iter1 = sample(iter1, train_loader1)
+            data = batchx.to(args.device)
             batchx, iter1 = sample(iter1, train_loader1)
             input_data = batchx.to(args.device)
             batchy, iter2 = sample(iter2, train_loader2)
             datay = batchy.to(args.device)
 
-            #optim_criticx1.zero_grad()
-            #optim_criticx2.zero_grad()
-            #r_loss, g_loss, p = disc_loss_generation(input_data, data, args.eps, args.lp, criticx1, criticx2)
-            #(r_loss + g_loss + p).backward(mone)
-            #optim_criticx1.step()
-            #optim_criticx2.step()
+            optim_criticx1.zero_grad()
+            optim_criticx2.zero_grad()
+            r_loss, g_loss, p = disc_loss_generation(input_data, data, args.eps, args.lp, criticx1, criticx2)
+            (r_loss + g_loss + p).backward(mone)
+            optim_criticx1.step()
+            optim_criticx2.step()
 
             optim_criticy1.zero_grad()
             optim_criticy2.zero_grad()
@@ -150,11 +150,12 @@ def train(args):
         t = torch.stack([t_]*input_data.shape[0])
         #t = torch.stack([t_] * input_data.shape[0]).transpose(0, 1).reshape(-1, 1)
         tinputdata = torch.cat([input_data]*args.nt)
-        #tdata = torch.cat([data]*args.nt)
+        tdata = torch.cat([data]*args.nt)
         tdatay = torch.cat([datay]*args.nt)
-        #t_lossx = transfer_loss(tinputdata, tdata, args.nt, t, args.eps, args.lp, criticx1, criticx2, generator)**args.p_exp
-        t_lossy = transfer_loss(tinputdata, tdatay, args.nt, t, args.eps, args.lp, criticy1, criticy2, generator)#**args.p_exp
-        t_lossy.backward()
+        t_lossx = transfer_loss(tinputdata, tdata, args.nt, t, args.eps, args.lp, criticx1, criticx2, generator)#**args.p_exp
+        t_lossx.backward()
+        #t_lossy = transfer_loss(tinputdata, tdatay, args.nt, t, args.eps, args.lp, criticy1, criticy2, generator)#**args.p_exp
+        #t_lossy.backward()
         #t_loss = ((1-t_)*t_lossx + t_*t_lossy).sum()
         optim_generator.step()
 
@@ -168,8 +169,8 @@ def train(args):
             evaluate(args.visualiser, datax, datay, generator, 'x', args.device)
             d_loss = (r_loss+g_loss).detach().cpu().numpy()
             args.visualiser.plot(step=i, data=d_loss, title=f'Critic loss Y')
-            args.visualiser.plot(step=i, data=t_lossy.detach().cpu().numpy(), title=f'Generator loss Y')
-            #args.visualiser.plot(step=i, data=t_loss, title=f'generator loss')
+            args.visualiser.plot(step=i, data=t_lossx.detach().cpu().numpy(), title=f'Generator loss X')
+            #args.visualiser.plot(step=i, data=t_lossy.detach().cpu().numpy(), title=f'Generator loss Y')
             #with torch.no_grad():
                 #t_ = torch.arange(0, 1.1, 0.1, device=args.device)
                 #t = torch.stack([t_]*datax.shape[0]).transpose(0, 1).reshape(-1, 1)
