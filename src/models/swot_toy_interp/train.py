@@ -145,18 +145,19 @@ def train(args):
             optim_criticy2.step()
 
         optim_generator.zero_grad()
-        #t_ = torch.randn(args.nt, device=args.device)
-        t_ = torch.FloatTensor([1]*args.nt).to(args.device)
+        t_ = torch.randn(args.nt, device=args.device)
+        #t_ = torch.FloatTensor([1]*args.nt).to(args.device)
         t = torch.stack([t_]*input_data.shape[0])
         #t = torch.stack([t_] * input_data.shape[0]).transpose(0, 1).reshape(-1, 1)
         tinputdata = torch.cat([input_data]*args.nt)
         tdata = torch.cat([data]*args.nt)
         tdatay = torch.cat([datay]*args.nt)
         t_lossx = transfer_loss(tinputdata, tdata, args.nt, t, args.eps, args.lp, criticx1, criticx2, generator)#**args.p_exp
-        t_lossx.backward()
-        #t_lossy = transfer_loss(tinputdata, tdatay, args.nt, t, args.eps, args.lp, criticy1, criticy2, generator)#**args.p_exp
+        #t_lossx.backward()
+        t_lossy = transfer_loss(tinputdata, tdatay, args.nt, t, args.eps, args.lp, criticy1, criticy2, generator)#**args.p_exp
         #t_lossy.backward()
-        #t_loss = ((1-t_)*t_lossx + t_*t_lossy).sum()
+        t_loss = ((1-t_)*t_lossx + t_*t_lossy).sum()
+        t_loss.backward()
         optim_generator.step()
 
         if i % args.evaluate == 0:
@@ -170,7 +171,7 @@ def train(args):
             d_loss = (r_loss+g_loss).detach().cpu().numpy()
             args.visualiser.plot(step=i, data=d_loss, title=f'Critic loss Y')
             args.visualiser.plot(step=i, data=t_lossx.detach().cpu().numpy(), title=f'Generator loss X')
-            #args.visualiser.plot(step=i, data=t_lossy.detach().cpu().numpy(), title=f'Generator loss Y')
+            args.visualiser.plot(step=i, data=t_lossy.detach().cpu().numpy(), title=f'Generator loss Y')
             #with torch.no_grad():
                 #t_ = torch.arange(0, 1.1, 0.1, device=args.device)
                 #t = torch.stack([t_]*datax.shape[0]).transpose(0, 1).reshape(-1, 1)
