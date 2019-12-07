@@ -11,7 +11,6 @@ from . import model
 
 
 def disc_loss_generation(data, target, nz, eps, alpha, lp, critic1, critic2, generator, device):
-    #t = torch.rand(1, device=device)
     t = torch.distributions.beta.Beta(alpha, alpha).sample_n(1).to(device)
     t = torch.stack([t]*data.shape[0])
     gen = generator(data, t).detach()
@@ -19,9 +18,9 @@ def disc_loss_generation(data, target, nz, eps, alpha, lp, critic1, critic2, gen
     v = critic2(gen, t)
     u_ = u.unsqueeze(0)
     v_ = v.unsqueeze(1)
+    data_ = data.view(data.shape[0], -1).unsqueeze(0)
     target_ = target.view(data.shape[0], -1).unsqueeze(0)
-    gen_ = gen.view(gen.shape[0], -1).unsqueeze(1)
-    p = (u_ + v_ - (torch.abs(gen_ - target_)**lp).sum(2))
+    p = u_ + v_ - (torch.abs(target_ - data_)**lp).sum(2)
     p.clamp_(0)
     p = -(1/(2*eps))*p**2
     return u.mean(), v.mean(), p.mean()
@@ -29,14 +28,15 @@ def disc_loss_generation(data, target, nz, eps, alpha, lp, critic1, critic2, gen
 
 def transfer_loss(data, target, nz, t, eps, lp, critic1, critic2, generator, device):
     gen = generator(data, t)
-    u = critic1(target, t)
-    v = critic2(gen, t)
+    u = critic1(data, t)
+    v = critic2(target, t)
     u_ = u.unsqueeze(0)
     v_ = v.unsqueeze(1)
-    target_ = target.view(data.shape[0], -1).unsqueeze(0)
-    gen_ = gen.view(gen.shape[0], -1).unsqueeze(1)
-    H = torch.clamp(u_ + v_ - (torch.abs(gen_ - target_)**lp).sum(2), 0)
-    H = 1/eps*H
+    data_ = data.view(data.shape[0], -1).unsqueeze(0)
+    target_ = target.view(data.shape[0], -1).unsqueeze(1)
+    H = torch.clamp(u_ + v_ - (torch.abs(data_ - target_)**lp).sum(2), 0)
+    H = H/(2*eps)
+    gen_ = gen.view(gen.shape[0], -1).unsqueeze(0)
     loss = (torch.abs(target_ - gen_)**lp).sum(2)*H.detach()
     return loss.mean()
 
