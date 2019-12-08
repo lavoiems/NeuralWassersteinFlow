@@ -51,6 +51,7 @@ class Generator(nn.Module):
         self.decoder = nn.Sequential(*decoder)
 
     def forward(self, z, t):
-        o = self.encoder(z)
+        o = self.encoder(z).squeeze()
         o = torch.cat((o, t), 1)
+        o = o.view(o.shape[0], o.shape[1], 1, 1)
         return self.decoder(o)
