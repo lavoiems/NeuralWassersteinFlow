@@ -40,11 +40,11 @@ def transfer_loss(data, target, nt, t, eps, lp, critic1, critic2, generator):
 
 
 def define_models(shape1, **parameters):
-    criticx1 = model.Critic(shape1, **parameters)
-    criticx2 = model.Critic(shape1, **parameters)
-    criticy1 = model.Critic(shape1, **parameters)
-    criticy2 = model.Critic(shape1, **parameters)
-    generator = model.Generator(shape1, **parameters)
+    criticx1 = model.Critic(shape1[0], **parameters)
+    criticx2 = model.Critic(shape1[0], **parameters)
+    criticy1 = model.Critic(shape1[0], **parameters)
+    criticy2 = model.Critic(shape1[0], **parameters)
+    generator = model.Generator(shape1[0], **parameters)
     return {
         'generator': generator,
         'criticx1': criticx1,
