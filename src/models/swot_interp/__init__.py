@@ -5,8 +5,8 @@ from common.loaders import images
 def parse_args(parser):
     parser.add_argument('--dataset1', type=str, default='visda')
     parser.add_argument('--dataset2', type=str, default='visda')
-    parser.add_argument('--dataset_loc1', type=str, default='./data')
-    parser.add_argument('--dataset_loc2', type=str, default='./data')
+    parser.add_argument('--dataset-loc1', type=str, default='./data')
+    parser.add_argument('--dataset-loc2', type=str, default='./data')
     parser.add_argument('--h-dim', type=int, default=64)
     parser.add_argument('--lr', type=float, default=2e-4)
     parser.add_argument('--beta1', type=float, default=0.5)
