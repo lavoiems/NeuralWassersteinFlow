@@ -87,4 +87,4 @@ class TCBN(nn.Module):
         beta = self.fc_beta(t)
 
         # Standard batch normalization
-        return F.batch_norm(input, self.mean, self.var, gamma, beta, False, 0, self.eps)
+        return F.batch_norm(input, None, None, gamma, beta, False, 0, self.eps)
