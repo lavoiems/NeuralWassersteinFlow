@@ -112,17 +112,11 @@ def train(args):
                 batchx, iter1 = sample(iter1, train_loader1)
             data = batchx[0].to(args.device)
 
-            #batchx, iter1 = sample(iter1, train_loader1)
-            #input_data = batchx[0].to(args.device)
-            #if input_data.shape[0] != args.train_batch_size:
-            #    batchx, iter1 = sample(iter1, train_loader1)
-            #input_data = batchx[0].to(args.device)
-
-            #batchy, iter2 = sample(iter2, train_loader2)
-            #datay = batchy[0].to(args.device)
-            #if datay.shape[0] != args.train_batch_size:
-            #    batchy, iter2 = sample(iter2, train_loader2)
-            #datay = batchy[0].to(args.device)
+            batchy, iter2 = sample(iter2, train_loader2)
+            datay = batchy[0].to(args.device)
+            if datay.shape[0] != args.train_batch_size:
+                batchy, iter2 = sample(iter2, train_loader2)
+            datay = batchy[0].to(args.device)
 
             optim_criticx1.zero_grad()
             optim_criticx2.zero_grad()
@@ -131,26 +125,23 @@ def train(args):
             optim_criticx1.step()
             optim_criticx2.step()
 
-            #optim_criticy1.zero_grad()
-            #optim_criticy2.zero_grad()
-            #r_loss, g_loss, p = disc_loss_generation(input_data, datay, args.eps, args.lp, criticy1, criticy2)
-            #(r_loss + g_loss + p).backward(mone)
-            #optim_criticy1.step()
-            #optim_criticy2.step()
+            optim_criticy1.zero_grad()
+            optim_criticy2.zero_grad()
+            r_loss, g_loss, p = disc_loss_generation(data, datay, args.eps, args.lp, criticy1, criticy2)
+            (r_loss + g_loss + p).backward(mone)
+            optim_criticy1.step()
+            optim_criticy2.step()
 
         optim_generator.zero_grad()
-        #t_ = torch.rand(args.nt, device=args.device)
-        t_ = torch.FloatTensor([1]).to(args.device)
+        t_ = torch.rand(args.nt, device=args.device)
         t = torch.stack([t_]*data.shape[0])
         #t = torch.stack([t_] * input_data.shape[0]).transpose(0, 1).reshape(-1, 1)
-        #tinputdata = torch.cat([input_data]*args.nt)
         tdata = torch.cat([data]*args.nt)
-        #tdatay = torch.cat([datay]*args.nt)
+        tdatay = torch.cat([datay]*args.nt)
         t_lossx = transfer_loss(tdata, tdata, args.nt, t, args.eps, args.lp, criticx1, criticx2, generator)
-        t_lossx.backward()
-        #t_lossy = transfer_loss(tinputdata, tdatay, args.nt, t, args.eps, args.lp, criticy1, criticy2, generator)
-        #t_loss = ((1-t_)*t_lossx + t_*t_lossy).sum()
-        #t_loss.backward()
+        t_lossy = transfer_loss(tdata, tdatay, args.nt, t, args.eps, args.lp, criticy1, criticy2, generator)
+        t_loss = ((1-t_)*t_lossx + t_*t_lossy).sum()
+        t_loss.backward()
         optim_generator.step()
 
         if i % args.evaluate == 0:
