@@ -151,8 +151,8 @@ def train(args):
         tinputdata = torch.cat([input_data]*args.nt)
         tdata = torch.cat([data]*args.nt)
         tdatay = torch.cat([datay]*args.nt)
-        t_lossx = transfer_loss(tinputdata, tdata, args.nt, t, args.eps, args.lp, criticx1, criticx2, generator)#**args.p_exp
-        t_lossy = transfer_loss(tinputdata, tdatay, args.nt, t, args.eps, args.lp, criticy1, criticy2, generator)#**args.p_exp
+        t_lossx = transfer_loss(tinputdata, tdata, args.nt, t, args.eps, args.lp, criticx1, criticx2, generator)
+        t_lossy = transfer_loss(tinputdata, tdatay, args.nt, t, args.eps, args.lp, criticy1, criticy2, generator)
         t_loss = ((1-t_)*t_lossx + t_*t_lossy).sum()
         t_loss.backward()
         optim_generator.step()
