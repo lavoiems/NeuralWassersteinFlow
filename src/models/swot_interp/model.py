@@ -50,7 +50,7 @@ class Generator(nn.Module):
 
     def forward(self, z, t):
         o = z
-        for layer in self.enoder:
+        for layer in self.encoder:
             o = layer(o, t)
         return o
 
