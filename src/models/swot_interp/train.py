@@ -139,7 +139,7 @@ def train(args):
 
         optim_generator.zero_grad()
         #t_ = torch.rand(args.nt, device=args.device)
-        t_ = torch.FloatTensor([1])
+        t_ = torch.FloatTensor([1]).to(args.device)
         t = torch.stack([t_]*input_data.shape[0])
         #t = torch.stack([t_] * input_data.shape[0]).transpose(0, 1).reshape(-1, 1)
         tinputdata = torch.cat([input_data]*args.nt)
