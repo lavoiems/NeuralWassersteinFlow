@@ -72,6 +72,8 @@ class TCBN(nn.Module):
             nn.ReLU(inplace=True),
             nn.Linear(n_hidden, num_features),
         )
+        self.mean = torch.FloatTensor([0])
+        self.var = torch.FloatTensor([1])
 
         # Initialize weights using Xavier initialization and biases with constant value
         for m in self.modules():
@@ -85,4 +87,4 @@ class TCBN(nn.Module):
         beta = self.fc_beta(t)
 
         # Standard batch normalization
-        return F.batch_norm(input, 0, 1, gamma, beta, False, 0, self.eps)
+        return F.batch_norm(input, self.mean, self.var, gamma, beta, False, 0, self.eps)
