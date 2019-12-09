@@ -63,7 +63,8 @@ def evaluate(visualiser, data, target, generator, id, device):
     for i in range(card):
         plt.xlim(0,1)
         plt.ylim(0,1)
-        t_ = torch.FloatTensor([i/(card-1)]).to(device)
+        t_ = torch.FloatTensor([1]).to(device)
+        #t_ = torch.FloatTensor([i/(card-1)]).to(device)
         t = torch.stack([t_] * data.shape[0]).transpose(0, 1).reshape(-1, 1)
         X = generator(data, t)
         visualiser.image(X.cpu().numpy(), title=f'Generated {i}', step=id)
