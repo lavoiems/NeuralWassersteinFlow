@@ -36,8 +36,7 @@ def transfer_loss(data, target, nt, t, eps, lp, critic1, critic2, generator):
     H = H/(2*eps)
     gen_ = gen.view(gen.shape[0], -1).unsqueeze(0)
     loss = (torch.abs(target_ - gen_)**lp).sum(2)*H.detach()
-    loss = loss.view(nt, -1).mean(1)
-    return loss
+    return loss.mean()
 
 
 def define_models(shape1, **parameters):
