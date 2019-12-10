@@ -228,7 +228,7 @@ def train(args):
             datax = batchx.to(args.device)
             batchy, titer2 = sample(titer2, test_loader2)
             datay = batchy.to(args.device)
-            evaluate_1d(args.visualiser, datax, datay, generator, 'x', args.device)
+            evaluate(args.visualiser, datax, datay, generator, 'x', args.device)
             print(H1.sum(), H2.sum())
             d_loss = (r_lossx+g_lossx).detach().cpu().numpy()
             args.visualiser.plot(step=i, data=d_loss, title=f'Critic loss X')
