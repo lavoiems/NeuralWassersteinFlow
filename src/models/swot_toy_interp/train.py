@@ -92,7 +92,7 @@ def evaluate(visualiser, data, target, generator, id, device):
 def evaluate_1d(visualiser, data, target, generator, id, device):
     fig = plt.figure()
 
-    plt.hist(data.cpu().numpy(), bins=100)
+    #plt.hist(data.cpu().numpy(), bins=100)
     sns.distplot(data.cpu().numpy(), bins=100)
     visualiser.matplotlib(fig, 'Interpolation', id)
     plt.clf()
