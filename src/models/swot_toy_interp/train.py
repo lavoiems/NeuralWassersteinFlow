@@ -87,6 +87,45 @@ def evaluate(visualiser, data, target, generator, id, device):
     plt.close(fig)
 
 
+@torch.no_grad()
+def evaluate_1d(visualiser, data, target, generator, id, device):
+    fig = plt.figure()
+
+    plt.hist(data)
+    visualiser.matplotlib(fig, 'Interpolation', id)
+    plt.clf()
+
+    plt.close(fig)
+    #jet = plt.get_cmap('jet')
+    #alphas = data.sum(1)
+    #cNorm = colors.Normalize(vmin=alphas.min(), vmax=alphas.max())
+    #scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=jet)
+    #color_val = scalarMap.to_rgba(alphas.cpu())
+    #plt.xlim(0,1)
+    #plt.ylim(0,1)
+    #plt.scatter(*data.cpu().numpy().transpose(), c=color_val)
+    #visualiser.matplotlib(fig, 'target1', f'{id}0')
+    #plt.clf()
+    #plt.xlim(0,1)
+    #plt.ylim(0,1)
+
+    #plt.scatter(*target.cpu().numpy().transpose())
+    #visualiser.matplotlib(fig, 'target2', f'{id}0')
+    #plt.clf()
+    #card = 11
+    #for i in range(card):
+    #    plt.xlim(0,1)
+    #    plt.ylim(0,1)
+    #    t_ = torch.FloatTensor([i/(card-1)]).to(device)
+    #    t = torch.stack([t_] * data.shape[0]).transpose(0, 1).reshape(-1, 1)
+    #    #t = torch.FloatTensor([i/(card-1)]).repeat(data.shape[0], 1).to(device)
+    #    X = generator(data, t)
+    #    plt.scatter(*X.cpu().numpy().transpose(), c=color_val)
+    #    visualiser.matplotlib(fig, f'data{i}', f'{id}0')
+    #    plt.clf()
+    #plt.close(fig)
+
+
 def train(args):
     parameters = vars(args)
     train_loader1, test_loader1 = args.loaders1

@@ -24,12 +24,16 @@ def execute(args):
     #tdataset2 = toy.mixture2(args.test_batch_size)
     #dataset1 = toy.spiral(1, args.train_batch_size, translationx=0, translationy=0)
     #dataset2 = toy.spiral(-1, args.train_batch_size, translationx=0, translationy=0)
-    dataset1 = toy.png(args.train_batch_size, 'square.png')
-    dataset2 = toy.png(args.train_batch_size, 'circle.png')
-    tdataset1 = toy.png(args.test_batch_size, 'square.png')
-    tdataset2 = toy.png(args.test_batch_size, 'circle.png')
+    #dataset1 = toy.png(args.train_batch_size, 'square.png')
+    #dataset2 = toy.png(args.train_batch_size, 'circle.png')
+    #tdataset1 = toy.png(args.test_batch_size, 'square.png')
+    #tdataset2 = toy.png(args.test_batch_size, 'circle.png')
+    dataset1 = toy.gaussian1(args.train_batch_size, 0, 1)
+    tdataset1 = toy.gaussian1(args.test_batch_size, 0, 1)
+    dataset2 = toy.mixture(args.train_batch_size)
+    tdataset2 = toy.mixture(args.train_batch_size)
     args.loaders1 = (dataset1, tdataset1)
     args.loaders2 = (dataset2, tdataset2)
-    args.shape1 = 2
+    args.shape1 = 1
 
     train(args)
