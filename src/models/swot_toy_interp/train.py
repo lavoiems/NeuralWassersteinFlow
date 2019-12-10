@@ -24,7 +24,7 @@ def disc_loss_generation(data, target, eps, lp, critic1, critic2):
     return u.mean(), v.mean(), p.mean()
 
 
-def transfer_loss(data, target, nt, t, eps, lp, critic1, critic2, generator):
+def transfer_loss(data, target, t, eps, lp, critic1, critic2, generator):
     gen = generator(data, t)
     u = critic1(data)
     v = critic2(target)
@@ -33,7 +33,7 @@ def transfer_loss(data, target, nt, t, eps, lp, critic1, critic2, generator):
     data_ = data.view(data.shape[0], -1).unsqueeze(0)
     target_ = target.view(target.shape[0], -1).unsqueeze(1)
     H = torch.clamp(u_ + v_ - (torch.abs(data_ - target_)**lp).sum(2), 0)
-    H = H/(2*eps)
+    H = H/eps
     gen_ = gen.view(gen.shape[0], -1).unsqueeze(0)
     loss = (torch.abs(target_ - gen_)**lp).sum(2)*H.detach()
     return loss.mean()
@@ -214,12 +214,8 @@ def train(args):
         optim_generator.zero_grad()
         t_ = torch.rand(args.nt, device=args.device)
         t = torch.stack([t_]*input_data.shape[0])
-        #t = torch.stack([t_] * input_data.shape[0]).transpose(0, 1).reshape(-1, 1)
-        tinputdata = torch.cat([input_data]*args.nt)
-        tdata = torch.cat([data]*args.nt)
-        tdatay = torch.cat([datay]*args.nt)
-        t_lossx = transfer_loss(input_data, data, args.nt, t, args.eps, args.lp, criticx1, criticx2, generator)
-        t_lossy = transfer_loss(input_data, datay, args.nt, t, args.eps, args.lp, criticy1, criticy2, generator)
+        t_lossx = transfer_loss(input_data, data, t, args.eps, args.lp, criticx1, criticx2, generator)
+        t_lossy = transfer_loss(input_data, datay, t, args.eps, args.lp, criticy1, criticy2, generator)
         t_loss = ((1-t_)*t_lossx + t_*t_lossy).sum()
         t_loss.backward()
         optim_generator.step()
