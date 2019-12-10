@@ -91,7 +91,7 @@ def evaluate(visualiser, data, target, generator, id, device):
 def evaluate_1d(visualiser, data, target, generator, id, device):
     fig = plt.figure()
 
-    plt.hist(data)
+    plt.hist(data.cpu().numpy())
     visualiser.matplotlib(fig, 'Interpolation', id)
     plt.clf()
 
