@@ -93,7 +93,34 @@ def evaluate_1d(visualiser, data, target, generator, id, device):
     fig = plt.figure()
 
     #plt.hist(data.cpu().numpy(), bins=100)
-    sns.distplot(data.cpu().numpy(), bins=100)
+    sns.distplot(data.cpu().numpy(), bins=100, color='black', hist=False)
+    sns.distplot(target.cpu().numpy(), bins=100, color='black', hist=False)
+
+    t_ = torch.FloatTensor([0]).to(device)
+    t = torch.stack([t_]*data.shape[0])
+    X = generator(data, t)
+    sns.distplot(X.cpu().numpy(), bins=100, color='blue', kde=False, norm_hist=True)
+
+    t_ = torch.FloatTensor([0.25]).to(device)
+    t = torch.stack([t_]*data.shape[0])
+    X = generator(data, t)
+    sns.distplot(X.cpu().numpy(), bins=100, color='green', kde=False, norm_hist=True)
+
+    t_ = torch.FloatTensor([0.5]).to(device)
+    t = torch.stack([t_]*data.shape[0])
+    X = generator(data, t)
+    sns.distplot(X.cpu().numpy(), bins=100, color='yellow', kde=False, norm_hist=True)
+
+    t_ = torch.FloatTensor([0.75]).to(device)
+    t = torch.stack([t_]*data.shape[0])
+    X = generator(data, t)
+    sns.distplot(X.cpu().numpy(), bins=100, color='orange', kde=False, norm_hist=True)
+
+    t_ = torch.FloatTensor([1]).to(device)
+    t = torch.stack([t_]*data.shape[0])
+    X = generator(data, t)
+    sns.distplot(X.cpu().numpy(), bins=100, color='red', kde=False, norm_hist=True)
+
     visualiser.matplotlib(fig, 'Interpolation', id)
     plt.clf()
 

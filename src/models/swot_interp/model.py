@@ -31,7 +31,7 @@ class Block(nn.Module):
 
     def forward(self, x, t):
         o = self.conv(x)
-        o = self.tcbn(o, t)
+        o = self.tcbn(o, t[0])
         return F.relu(o)
 
 
@@ -45,14 +45,15 @@ class Generator(nn.Module):
             in_dim = dim
             dim = min(in_dim*2, h_dim*4)
             encoder += [Block(in_dim, dim, 64)]
-        encoder += [nn.Conv2d(dim, o_dim, 3, 1, 1)]
         self.encoder = nn.ModuleList(encoder)
+        self.out = nn.Conv2d(dim, o_dim, 3, 1, 1)
 
     def forward(self, z, t):
         o = z
         for layer in self.encoder:
             o = layer(o, t)
-        return o
+        o = self.out(o)
+        return F.sigmoid(o)
 
 
 class TCBN(nn.Module):

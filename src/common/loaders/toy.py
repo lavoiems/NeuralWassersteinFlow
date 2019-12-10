@@ -55,9 +55,9 @@ def mixture(batch_size):
         points = []
         for _ in range(batch_size):
             if np.random.randint(0, 2):
-                points.append(np.random.normal((25,), (2,)))
+                points.append(np.random.normal((25,), (1,)))
             else:
-                points.append(np.random.normal((35,), (1,)))
+                points.append(np.random.normal((35,), (0.5,)))
         points = np.array(points)
         yield(torch.from_numpy(points).type(torch.FloatTensor))
 
