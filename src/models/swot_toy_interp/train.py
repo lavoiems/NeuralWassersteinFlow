@@ -36,7 +36,7 @@ def transfer_loss(data, target, t, eps, lp, critic1, critic2, generator):
     H = H/eps
     gen_ = gen.view(gen.shape[0], -1).unsqueeze(0)
     loss = (torch.abs(target_ - gen_)**lp).sum(2)*H.detach()
-    return loss.mean()
+    return loss.mean(), H
 
 
 def define_models(shape1, **parameters):
@@ -214,8 +214,8 @@ def train(args):
         optim_generator.zero_grad()
         t_ = torch.rand(1, device=args.device)
         t = torch.stack([t_]*input_data.shape[0])
-        t_lossx = transfer_loss(input_data, data, t, args.eps, args.lp, criticx1, criticx2, generator)
-        t_lossy = transfer_loss(input_data, datay, t, args.eps, args.lp, criticy1, criticy2, generator)
+        t_lossx, H1 = transfer_loss(input_data, data, t, args.eps, args.lp, criticx1, criticx2, generator)
+        t_lossy, H2 = transfer_loss(input_data, datay, t, args.eps, args.lp, criticy1, criticy2, generator)
         t_loss = ((1-t_)*t_lossx + t_*t_lossy).sum()
         t_loss.backward()
         optim_generator.step()
@@ -229,6 +229,7 @@ def train(args):
             datay = batchy.to(args.device)
             evaluate_1d(args.visualiser, datax, datay, generator, 'x', args.device)
             d_loss = (r_loss+g_loss).detach().cpu().numpy()
+            print(H1.sum(), H2.sum())
             args.visualiser.plot(step=i, data=d_loss, title=f'Critic loss Y')
             args.visualiser.plot(step=i, data=t_lossx.detach().cpu().numpy(), title=f'Generator loss X')
             args.visualiser.plot(step=i, data=t_lossy.detach().cpu().numpy(), title=f'Generator loss Y')
