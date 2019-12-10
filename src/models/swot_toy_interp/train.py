@@ -4,6 +4,7 @@ from torch import optim
 import matplotlib.pyplot as plt
 import matplotlib.cm as cmx
 import matplotlib.colors as colors
+import seaborn as sns
 
 from common.util import sample, save_models
 from common.initialize import initialize, infer_iteration
@@ -91,7 +92,8 @@ def evaluate(visualiser, data, target, generator, id, device):
 def evaluate_1d(visualiser, data, target, generator, id, device):
     fig = plt.figure()
 
-    plt.hist(data.cpu().numpy(), bins=200)
+    plt.hist(data.cpu().numpy(), bins=100)
+    sns.distplot(data.cpu().numpy(), bins=100)
     visualiser.matplotlib(fig, 'Interpolation', id)
     plt.clf()
 
