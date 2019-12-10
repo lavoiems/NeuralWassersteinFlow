@@ -27,6 +27,6 @@ def execute(args):
     #tdataset2 = toy.png(args.test_batch_size, 'circle.png')
     args.loaders1 = (dataset1, tdataset1)
     args.loaders2 = (dataset2, tdataset2)
-    args.shape1 = 1
+    args.shape1 = 2
 
     train(args)
