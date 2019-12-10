@@ -212,7 +212,7 @@ def train(args):
             optim_criticy2.step()
 
         optim_generator.zero_grad()
-        t_ = torch.rand(args.nt, device=args.device)
+        t_ = torch.rand(1, device=args.device)
         t = torch.stack([t_]*input_data.shape[0])
         t_lossx = transfer_loss(input_data, data, t, args.eps, args.lp, criticx1, criticx2, generator)
         t_lossy = transfer_loss(input_data, datay, t, args.eps, args.lp, criticy1, criticy2, generator)
