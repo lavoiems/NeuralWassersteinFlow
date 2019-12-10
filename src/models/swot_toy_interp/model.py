@@ -7,15 +7,13 @@ class Critic(nn.Module):
         super(Critic, self).__init__()
 
         x = [nn.Linear(i_dim, h_dim),
-             nn.ReLU(inplace=True),
+             nn.ELU(inplace=True),
              nn.Linear(h_dim, h_dim),
-             nn.ReLU(inplace=True),
+             nn.ELU(inplace=True),
              nn.Linear(h_dim, h_dim),
-             nn.ReLU(inplace=True),
+             nn.ELU(inplace=True),
              nn.Linear(h_dim, h_dim),
-             nn.ReLU(inplace=True),
-             nn.Linear(h_dim, h_dim),
-             nn.ReLU(inplace=True),
+             nn.ELU(inplace=True),
              nn.Linear(h_dim, 1)]
 
         self.x = nn.Sequential(*x)
