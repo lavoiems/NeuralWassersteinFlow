@@ -85,7 +85,7 @@ def evaluate(visualiser, data, target, generator, id, device):
         t = torch.stack([t_] * data.shape[0]).transpose(0, 1).reshape(-1, 1)
         #t = torch.FloatTensor([i/(card-1)]).repeat(data.shape[0], 1).to(device)
         X = generator(data, t)
-        sns.kdeplot(*X.cpu().numpy().transpose(), cmap=cmap, n_levels=3, shade=False)
+        sns.kdeplot(*X.cpu().numpy().transpose(), cmap=cmap, n_levels=3, shade=True)
         #plt.scatter(*X.cpu().numpy().transpose(), c=color_val)
         visualiser.matplotlib(fig, f'data{i}', f'{id}0')
         plt.clf()
