@@ -66,7 +66,7 @@ def evaluate(visualiser, data, target, generator, id, device):
     cmap = sns.cubehelix_palette(as_cmap=True, dark=0, light=1, reverse=True)
     plt.xlim(-8,8)
     plt.ylim(-8,8)
-    sns.kdeplot(*data.cpu().numpy().transpose(), cmap=cmap, n_levels=20, shade=False)
+    sns.kdeplot(*data.cpu().numpy().transpose(), cmap=cmap, n_levels=10, shade=False)
     #plt.scatter(*data.cpu().numpy().transpose(), c=color_val)
     visualiser.matplotlib(fig, 'target1', f'{id}0')
     plt.clf()
@@ -74,7 +74,7 @@ def evaluate(visualiser, data, target, generator, id, device):
     plt.ylim(-8,8)
 
     #plt.scatter(*target.cpu().numpy().transpose())
-    sns.kdeplot(*target.cpu().numpy().transpose(), cmap=cmap, n_levels=20, shade=False)
+    sns.kdeplot(*target.cpu().numpy().transpose(), cmap=cmap, n_levels=10, shade=False)
     visualiser.matplotlib(fig, 'target2', f'{id}0')
     plt.clf()
     card = 11
@@ -85,7 +85,7 @@ def evaluate(visualiser, data, target, generator, id, device):
         t = torch.stack([t_] * data.shape[0]).transpose(0, 1).reshape(-1, 1)
         #t = torch.FloatTensor([i/(card-1)]).repeat(data.shape[0], 1).to(device)
         X = generator(data, t)
-        sns.kdeplot(*X.cpu().numpy().transpose(), cmap=cmap, n_levels=20, shade=False)
+        sns.kdeplot(*X.cpu().numpy().transpose(), cmap=cmap, n_levels=10, shade=False)
         #plt.scatter(*X.cpu().numpy().transpose(), c=color_val)
         visualiser.matplotlib(fig, f'data{i}', f'{id}0')
         plt.clf()
