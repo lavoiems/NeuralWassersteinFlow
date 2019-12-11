@@ -58,7 +58,7 @@ def define_models(shape1, **parameters):
 @torch.no_grad()
 def evaluate(visualiser, data, target, generator, id, device):
     fig = plt.figure()
-    plt.subplots(figsize=(6,6))
+    f, ax = plt.subplots(figsize=(6,6))
     jet = plt.get_cmap('jet')
     alphas = data.sum(1)
     cNorm = colors.Normalize(vmin=alphas.min(), vmax=alphas.max())
@@ -69,7 +69,7 @@ def evaluate(visualiser, data, target, generator, id, device):
     plt.ylim(-8,8)
     sns.kdeplot(*data.cpu().numpy().transpose(), cmap=cmap, n_levels=3, shade=True)
     #plt.scatter(*data.cpu().numpy().transpose(), c=color_val)
-    visualiser.matplotlib(fig, 'target1', f'{id}0')
+    visualiser.matplotlib(ax, 'target1', f'{id}0')
     plt.clf()
     plt.xlim(-8,8)
     plt.ylim(-8,8)
