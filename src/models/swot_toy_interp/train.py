@@ -66,7 +66,7 @@ def evaluate(visualiser, data, target, generator, id, device):
     cmap = sns.cubehelix_palette(as_cmap=True, dark=0, light=1, reverse=True)
     plt.xlim(-8,8)
     plt.ylim(-8,8)
-    sns.kdeplot(*data.cpu().numpy().transpose(), cmap=cmap, n_levels=3, shade=False)
+    sns.kdeplot(*data.cpu().numpy().transpose(), cmap=cmap, n_levels=3, shade=True)
     #plt.scatter(*data.cpu().numpy().transpose(), c=color_val)
     visualiser.matplotlib(fig, 'target1', f'{id}0')
     plt.clf()
