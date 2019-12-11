@@ -74,7 +74,7 @@ def evaluate(visualiser, data, target, generator, id, device):
     plt.ylim(-8,8)
 
     #plt.scatter(*target.cpu().numpy().transpose())
-    sns.kdeplot(*target.cpu().numpy().transpose(), cmap=cmap, n_levels=3, shade=False)
+    sns.kdeplot(*target.cpu().numpy().transpose(), cmap=cmap, n_levels=3, shade=True)
     visualiser.matplotlib(fig, 'target2', f'{id}0')
     plt.clf()
     card = 5
