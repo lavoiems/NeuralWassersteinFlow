@@ -58,6 +58,7 @@ def define_models(shape1, **parameters):
 @torch.no_grad()
 def evaluate(visualiser, data, target, generator, id, device):
     fig = plt.figure()
+    plt.subplot(figsize=(6,6))
     jet = plt.get_cmap('jet')
     alphas = data.sum(1)
     cNorm = colors.Normalize(vmin=alphas.min(), vmax=alphas.max())
