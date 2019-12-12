@@ -47,4 +47,5 @@ class Generator(nn.Module):
 
     def forward(self, z, t):
         o = torch.cat((z, t), 1)
+        o = torch.view(o.shape[0], o.shape[1], 1, 1)
         return self.x(o)
