@@ -13,8 +13,6 @@ class Critic(nn.Module):
              nn.LeakyReLU(0.2, inplace=True),
              nn.Conv2d(h_dim*2, h_dim*4, 4, 2, 1),
              nn.LeakyReLU(0.2, inplace=True),
-             nn.Conv2d(h_dim*4, h_dim*4, 4, 2, 1),
-             nn.LeakyReLU(0.2, inplace=True),
              nn.Conv2d(h_dim*4, 1, 4, 1, 0)]
 
         self.x = nn.Sequential(*x)

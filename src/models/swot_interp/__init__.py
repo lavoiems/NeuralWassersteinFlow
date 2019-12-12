@@ -23,13 +23,13 @@ def execute(args):
     print(args)
     dataset1 = getattr(images, args.dataset1)
     train_loader1, test_loader1, shape1, _ = dataset1(
-        args.dataset_loc1, 10, args.test_batch_size)
+        args.dataset_loc1, args.train_batch_size, args.test_batch_size)
     args.loaders1 = (train_loader1, test_loader1)
     args.shape1 = shape1
 
     dataset2 = getattr(images, args.dataset2)
     train_loader2, test_loader2, shape2, _ = dataset2(
-        args.dataset_loc2, 500, args.test_batch_size)
+        args.dataset_loc2, args.train_batch_size, args.test_batch_size)
     args.loaders2 = (train_loader2, test_loader2)
     args.shape2 = shape2
 
