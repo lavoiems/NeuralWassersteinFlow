@@ -70,7 +70,7 @@ def evaluate(visualiser, data, target, target2, target3, generator, id, device):
     concentrations = [(1,0,0,0), (0,1,0,0), (0,0,1,0), (0,0,0,1), (0.5,0.5,0,0), (0.5,0,0.5,0), (0.5,0,0,0.5), (0,0.5,0.5,0), (0,0.5,0,0.5), (0,0,0.5,0.5),
             (0.34, 0.33, 0.33,0), (0,0.34,0.33,0.33),(0.25,0.25,0.25,0.25)]
     for t_ in concentrations:
-        t = torch.stack([t_] * data.shape[0])
+        t = torch.stack(torch.FloatTensor([t_]) * data.shape[0]).to(device)
         X = generator(data, t)
         visualiser.image(X.cpu().numpy(), title=f'Generated {t_}', step=id)
 
@@ -139,8 +139,8 @@ def train(args):
 
         batchw, iter4 = sample(iter4, train_loader4)
         dataw = batchw[0].to(args.device)
+        dataw[:,0] = dataw[:,0]*0
         dataw[:,1] = dataw[:,1]*0
-        dataw[:,2] = dataw[:,2]*0
 
         optim_criticx1.zero_grad()
         optim_criticx2.zero_grad()
@@ -201,8 +201,8 @@ def train(args):
 
         batchw, iter4 = sample(iter4, train_loader4)
         dataw = batchw[0].to(args.device)
+        dataw[:,0] = dataw[:,0]*0
         dataw[:,1] = dataw[:,1]*0
-        dataw[:,2] = dataw[:,2]*0
 
         optim_generator.zero_grad()
         t_ = Dirichlet(torch.FloatTensor([1.,1.,1.,1.])).sample().to(args.device)
