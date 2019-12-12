@@ -146,6 +146,8 @@ def train(args):
     parameters = vars(args)
     train_loader1, test_loader1 = args.loaders1
     train_loader2, test_loader2 = args.loaders2
+    train_loader3, test_loader3 = args.loaders3
+    train_loader4, test_loader4 = args.loaders4
 
     models = define_models(**parameters)
     initialize(models, args.reload, args.save_path, args.model_path)
@@ -175,9 +177,9 @@ def train(args):
     optim_criticw2 = optim.Adam(criticw2.parameters(), lr=args.lr, betas=(args.beta1, args.beta2))
     optim_generator = optim.Adam(generator.parameters(), lr=args.lr, betas=(args.beta1, args.beta2))
 
-    iter1, iter2 = iter(train_loader1), iter(train_loader2)
+    iter1, iter2, iter3, iter4 = iter(train_loader1), iter(train_loader2), iter(train_loader3), iter(train_loader4)
     iteration = infer_iteration(list(models.keys())[0], args.reload, args.model_path, args.save_path)
-    titer1, titer2 = iter(test_loader1), iter(test_loader2)
+    titer1, titer2, titer3, titer4 = iter(test_loader1), iter(test_loader2), iter(test_loader3), iter(test_loader4)
     mone = torch.FloatTensor([-1]).to(args.device)
     t0 = time.time()
     for i in range(iteration, args.iterations):
@@ -198,9 +200,9 @@ def train(args):
             input_data = batchx[0].to(args.device)
             batchy, iter2 = sample(iter2, train_loader2)
             datay = batchy[0].to(args.device)
-            batchz, iter2 = sample(iter2, train_loader2)
+            batchz, iter3 = sample(iter3, train_loader3)
             dataz = batchz[0].to(args.device)
-            batchw, iter2 = sample(iter2, train_loader2)
+            batchw, iter4 = sample(iter4, train_loader4)
             dataw = batchw[0].to(args.device)
 
             optim_criticx1.zero_grad()
