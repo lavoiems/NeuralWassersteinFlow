@@ -70,7 +70,7 @@ def evaluate(visualiser, data, target, target2, z_dim, generator, id, device):
     data02 = torch.clone(data)
     data02[:,1] = data02[:,1]*0
     data01 = torch.clone(data)
-    data01[:,2] = data01[:2]*0
+    data01[:,2] = data01[:,2]*0
     visualiser.image(data12.cpu().numpy(), title=f'Data [0, 1, 1]', step=id)
     visualiser.image(data02.cpu().numpy(), title=f'Data [1, 0, 1]', step=id)
     visualiser.image(data01.cpu().numpy(), title=f'Data [1, 1, 0]', step=id)
