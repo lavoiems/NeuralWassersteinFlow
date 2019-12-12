@@ -98,7 +98,7 @@ def train(args):
     criticx2.train()
     criticy1.train()
     criticy2.train()
-    for i in range(10000):
+    for i in range(4000):
         batchx, iter1 = sample(iter1, train_loader1)
         data = batchx[0].to(args.device)
 
