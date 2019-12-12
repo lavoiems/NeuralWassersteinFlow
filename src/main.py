@@ -20,6 +20,7 @@ from models import swot_sink_toy_interp
 from models import swot_toy_interp
 from models import swot_toy_interp_simplex
 from models import swot_interp
+from models import swot_interp_simplex
 
 _models_ = {
     'barycenter_sink': barycenter_sink,
@@ -39,6 +40,7 @@ _models_ = {
     'swot_toy_interp': swot_toy_interp,
     'swot_toy_interp_simplex': swot_toy_interp_simplex,
     'swot_interp': swot_interp,
+    'swot_interp_simplex': swot_interp_simplex,
 }
 
 
