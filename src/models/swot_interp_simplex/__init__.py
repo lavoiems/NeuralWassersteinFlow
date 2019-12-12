@@ -33,7 +33,7 @@ def execute(args):
     args.loaders2 = (train_loader2, test_loader2)
     args.shape2 = shape2
 
-    args.loader3 = (train_loader2, test_loader2)
-    args.loader4 = (train_loader2, test_loader2)
+    args.loaders3 = (train_loader2, test_loader2)
+    args.loaders4 = (train_loader2, test_loader2)
 
     train(args)
