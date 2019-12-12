@@ -29,7 +29,7 @@ def transfer_loss(target, z_dim, t, eps, lp, critic1, critic2, generator, device
     z = torch.randn(target.shape[0], z_dim, device=device)
     gen = generator(z, t)
     u = critic1(gen, t)
-    v = critic2(target)
+    v = critic2(target, t)
     u_ = u.unsqueeze(0)
     v_ = v.unsqueeze(1)
     gen_ = gen.view(gen.shape[0], -1).unsqueeze(0)
