@@ -116,3 +116,6 @@ dumped
 log
 raw
 processed
+dataset_shapenet/
+grid_search.sh
+start.sh

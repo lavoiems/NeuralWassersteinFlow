@@ -5,6 +5,7 @@ import torch
 import numpy as np
 from PIL import Image
 import matplotlib.pylab as plt
+from .dataset_shapenet import ShapeNetSeg
 
 
 def spiral(scale, batch_size, translationx=0, translationy=0):
@@ -134,3 +135,10 @@ def pointcloud(batch_size, filename, idx):
         yield(data)
 
 
+def shapenet(batchsize, idx):
+    d = ShapeNetSeg(mode="MEMORIZE", knn=False, sample=True, class_choice="Chair",
+        data_augmentation_Z_rotation=False, npoints=400,
+        random_translation=False, anisotropic_scaling=False, shuffle=False, get_single_shape=True)
+    while True:
+        points = d[idx]
+        yield(points)
