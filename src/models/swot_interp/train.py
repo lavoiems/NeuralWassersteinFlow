@@ -1,9 +1,6 @@
 import time
 import torch
 from torch import optim
-import matplotlib.pyplot as plt
-import matplotlib.cm as cmx
-import matplotlib.colors as colors
 
 from common.util import sample, save_models
 from common.initialize import initialize, infer_iteration
@@ -32,7 +29,7 @@ def transfer_loss(data, target, nt, t, eps, lp, critic1, critic2, generator):
     data_ = data.view(data.shape[0], -1).unsqueeze(0)
     target_ = target.view(target.shape[0], -1).unsqueeze(1)
     H = torch.clamp(u_ + v_ - (torch.abs(data_ - target_)**lp).sum(2), 0)
-    H = H/(2*eps)
+    H = H/eps
     gen_ = gen.view(gen.shape[0], -1).unsqueeze(0)
     loss = (torch.abs(target_ - gen_)**lp).sum(2)*H.detach()
     loss = loss.view(nt, -1).mean(1)
@@ -61,8 +58,6 @@ def evaluate(visualiser, data, target, generator, id, device):
 
     card = 11
     for i in range(card):
-        plt.xlim(0,1)
-        plt.ylim(0,1)
         t_ = torch.FloatTensor([i/(card-1)]).to(device)
         t = torch.stack([t_] * data.shape[0]).transpose(0, 1).reshape(-1, 1)
         X = generator(data, t)
@@ -97,39 +92,51 @@ def train(args):
     titer1, titer2 = iter(test_loader1), iter(test_loader2)
     mone = torch.FloatTensor([-1]).to(args.device)
     t0 = time.time()
+
+    generator.train()
+    criticx1.train()
+    criticx2.train()
+    criticy1.train()
+    criticy2.train()
+    for i in range(10000):
+        batchx, iter1 = sample(iter1, train_loader1)
+        data = batchx[0].to(args.device)
+
+        batchy, iter2 = sample(iter2, train_loader2)
+        datay = batchy[0].to(args.device)
+
+        optim_criticx1.zero_grad()
+        optim_criticx2.zero_grad()
+        r_loss, g_loss, p = disc_loss_generation(data, data, args.eps, args.lp, criticx1, criticx2)
+        (r_loss + g_loss + p).backward(mone)
+        optim_criticx1.step()
+        optim_criticx2.step()
+
+        optim_criticy1.zero_grad()
+        optim_criticy2.zero_grad()
+        r_loss, g_loss, p = disc_loss_generation(data, datay, args.eps, args.lp, criticy1, criticy2)
+        (r_loss + g_loss + p).backward(mone)
+        optim_criticy1.step()
+        optim_criticy2.step()
+        if i % 100 == 0:
+            print(f'Critics-{i}')
     for i in range(iteration, args.iterations):
         generator.train()
         criticx1.train()
         criticx2.train()
         criticy1.train()
         criticy2.train()
+        batchx, iter1 = sample(iter1, train_loader1)
+        data = batchx[0].to(args.device)
+        #if data.shape[0] != args.train_batch_size:
+            #batchx, iter1 = sample(iter1, train_loader1)
+        #data = batchx[0].to(args.device)
 
-        for _ in range(args.d_updates):
-            batchx, iter1 = sample(iter1, train_loader1)
-            data = batchx[0].to(args.device)
-            if data.shape[0] != args.train_batch_size:
-                batchx, iter1 = sample(iter1, train_loader1)
-            data = batchx[0].to(args.device)
-
-            batchy, iter2 = sample(iter2, train_loader2)
-            datay = batchy[0].to(args.device)
-            if datay.shape[0] != args.train_batch_size:
-                batchy, iter2 = sample(iter2, train_loader2)
-            datay = batchy[0].to(args.device)
-
-            optim_criticx1.zero_grad()
-            optim_criticx2.zero_grad()
-            r_loss, g_loss, p = disc_loss_generation(data, data, args.eps, args.lp, criticx1, criticx2)
-            (r_loss + g_loss + p).backward(mone)
-            optim_criticx1.step()
-            optim_criticx2.step()
-
-            optim_criticy1.zero_grad()
-            optim_criticy2.zero_grad()
-            r_loss, g_loss, p = disc_loss_generation(data, datay, args.eps, args.lp, criticy1, criticy2)
-            (r_loss + g_loss + p).backward(mone)
-            optim_criticy1.step()
-            optim_criticy2.step()
+        batchy, iter2 = sample(iter2, train_loader2)
+        datay = batchy[0].to(args.device)
+        #if datay.shape[0] != args.train_batch_size:
+            #batchy, iter2 = sample(iter2, train_loader2)
+        #datay = batchy[0].to(args.device)
 
         optim_generator.zero_grad()
         t_ = torch.rand(args.nt, device=args.device)
