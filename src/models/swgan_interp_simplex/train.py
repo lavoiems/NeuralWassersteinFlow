@@ -65,23 +65,13 @@ def evaluate(visualiser, data, target, target2, z_dim, generator, id, device):
     visualiser.image(target.cpu().numpy(), title=f'Target', step=id)
     visualiser.image(data.cpu().numpy(), title=f'Source', step=id)
     visualiser.image(target2.cpu().numpy(), title=f'Target 2', step=id)
-    data12 = torch.clone(data)
-    data12[:,0] = data12[:,0]*0
-    data02 = torch.clone(data)
-    data02[:,1] = data02[:,1]*0
-    data01 = torch.clone(data)
-    data01[:,2] = data01[:,2]*0
-    visualiser.image(data12.cpu().numpy(), title=f'Data [0, 1, 1]', step=id)
-    visualiser.image(data02.cpu().numpy(), title=f'Data [1, 0, 1]', step=id)
-    visualiser.image(data01.cpu().numpy(), title=f'Data [1, 1, 0]', step=id)
 
     z = torch.randn(100, z_dim, device=device)
-
     concentrations = [(1,0,0,0), (0,1,0,0), (0,0,1,0), (0,0,0,1), (0.5,0.5,0,0), (0.5,0,0.5,0), (0.5,0,0,0.5),
                       (0,0.5,0.5,0), (0,0.5,0,0.5), (0,0,0.5,0.5), (0.34, 0.33, 0.33,0), (0,0.34,0.33,0.33),
                       (0.25,0.25,0.25,0.25)]
     for t_ in concentrations:
-        t = torch.stack([torch.FloatTensor([t_])] * data.shape[0]).to(device)
+        t = torch.stack([torch.FloatTensor([t_])] * z.shape[0]).to(device)
         X = generator(z, t)
         visualiser.image(X.cpu().numpy(), title=f'Generated {t_}', step=id)
 
