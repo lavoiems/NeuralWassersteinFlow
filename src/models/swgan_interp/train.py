@@ -9,7 +9,6 @@ from . import model
 
 def disc_loss_generation(data, nz, alpha, eps, lp, critic1, critic2, generator, device):
     t = torch.distributions.beta.Beta(alpha, alpha).sample_n(1).to(device)
-    #t = torch.FloatTensor([0.5]).to(device)
     t = torch.stack([t]*data.shape[0])
     z = torch.randn(data.shape[0], nz, device=device)
     gen = generator(z, t).detach()
@@ -106,6 +105,8 @@ def train(args):
             if data.shape[0] != args.train_batch_size:
                 batchx, iter1 = sample(iter1, train_loader1)
                 data = batchx[0].to(args.device)
+            data[:,0] = data[:,0]*0
+            data[:,1] = data[:,1]*0
 
             optim_critic1.zero_grad()
             optim_critic2.zero_grad()
@@ -119,6 +120,9 @@ def train(args):
             if datay.shape[0] != args.train_batch_size:
                 batchy, iter2 = sample(iter2, train_loader2)
                 datay = batchy[0].to(args.device)
+            datay[:,1] = datay[:,1]*0
+            datay[:,2] = datay[:,2]*0
+
             optim_critic3.zero_grad()
             optim_critic4.zero_grad()
             r_loss, g_loss, p = disc_loss_generation(datay, args.z_dim, args.alpha, args.eps, args.lp, critic3, critic4, generator, args.device)
@@ -128,11 +132,10 @@ def train(args):
 
         optim_generator.zero_grad()
         t_ = torch.distributions.beta.Beta(args.alpha, args.alpha).sample_n(1).to(args.device)
-        #t_ = torch.FloatTensor([0.5]).to(args.device)
         t = torch.stack([t_]*data.shape[0])
         t_loss1 = transfer_loss(data, args.eps, args.lp, args.z_dim, t, critic1, critic2, generator, args.device)
         t_loss2 = transfer_loss(datay, args.eps, args.lp, args.z_dim, t, critic3, critic4, generator, args.device)
-        ((1-t_)*t_loss1**2 + t_*t_loss2**2).backward()
+        ((1-t_)*t_loss1 + t_*t_loss2).backward()
         optim_generator.step()
 
         if i % args.evaluate == 0:
