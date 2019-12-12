@@ -118,8 +118,10 @@ def train(args):
         (r_loss + g_loss + p).backward(mone)
         optim_criticy1.step()
         optim_criticy2.step()
-        if i % 100 == 0:
+        if i % 10 == 0:
             print(f'Critics-{i}')
+            print('Iter: %s' % i, time.time() - t0)
+            t0 = time.time()
     for i in range(iteration, args.iterations):
         generator.train()
         criticx1.train()
