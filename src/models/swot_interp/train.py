@@ -104,7 +104,6 @@ def train(args):
 
         batchy, iter2 = sample(iter2, train_loader2)
         datay = batchy[0].to(args.device)
-        datay[0] = datay[0]*0
 
         optim_criticx1.zero_grad()
         optim_criticx2.zero_grad()
@@ -140,7 +139,6 @@ def train(args):
 
         batchy, iter2 = sample(iter2, train_loader2)
         datay = batchy[0].to(args.device)
-        datay[0] = datay[0]*0
         #if datay.shape[0] != args.train_batch_size:
             #batchy, iter2 = sample(iter2, train_loader2)
         #datay = batchy[0].to(args.device)
@@ -164,7 +162,6 @@ def train(args):
             datax = batchx[0].to(args.device)
             batchy, titer2 = sample(titer2, test_loader2)
             datay = batchy[0].to(args.device)
-            datay[0] = datay[0]*0
             evaluate(args.visualiser, datax, datay, generator, 'x', args.device)
             args.visualiser.plot(step=i, data=t_lossx.detach().cpu().numpy(), title=f'Generator loss X')
             args.visualiser.plot(step=i, data=t_lossy.detach().cpu().numpy(), title=f'Generator loss Y')
