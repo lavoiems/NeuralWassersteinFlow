@@ -129,7 +129,7 @@ def train(args):
         criticz1.train()
         criticz2.train()
 
-        for i in range(args.d_updates):
+        for _ in range(args.d_updates):
             batchx, iter1 = sample(iter1, train_loader1)
             data = batchx[0].to(args.device)
             data[:,0] = data[:,0]*0
