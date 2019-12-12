@@ -67,9 +67,8 @@ def evaluate(visualiser, data, target, target2, z_dim, generator, id, device):
     visualiser.image(target2.cpu().numpy(), title=f'Target 2', step=id)
 
     z = torch.randn(100, z_dim, device=device)
-    concentrations = [(1,0,0,0), (0,1,0,0), (0,0,1,0), (0,0,0,1), (0.5,0.5,0,0), (0.5,0,0.5,0), (0.5,0,0,0.5),
-                      (0,0.5,0.5,0), (0,0.5,0,0.5), (0,0,0.5,0.5), (0.34, 0.33, 0.33,0), (0,0.34,0.33,0.33),
-                      (0.25,0.25,0.25,0.25)]
+
+    concentrations = [(1,0,0), (0,1,0), (0,0,1), (0.5, 0.5, 0), (0.5, 0, 0.5), (0, 0.5, 0.5), (0.34, 0.33, 0.33)]
     for t_ in concentrations:
         t = torch.stack([torch.FloatTensor([t_])] * z.shape[0]).to(device).squeeze()
         X = generator(z, t)
