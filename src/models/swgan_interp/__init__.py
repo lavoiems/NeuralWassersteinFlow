@@ -13,9 +13,8 @@ def parse_args(parser):
     parser.add_argument('--beta2', type=float, default=0.99)
     parser.add_argument('--d-updates', type=int, default=5)
     parser.add_argument('--z-dim', type=int, default=64)
-    parser.add_argument('--eps', type=float, default=0.5)
     parser.add_argument('--lp', type=float, default=1)
-    parser.add_argument('--alpha', type=float, default=1)
+    parser.add_argument('--eps', type=float, default=0.5)
 
 
 def execute(args):
