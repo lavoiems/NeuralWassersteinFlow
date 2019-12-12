@@ -21,7 +21,7 @@ def disc_loss_generation(data, target, eps, lp, critic1, critic2):
     return u.mean(), v.mean(), p.mean()
 
 
-def transfer_loss(data, target, nt, t, eps, lp, critic1, critic2, generator):
+def transfer_loss(data, target, t, eps, lp, critic1, critic2, generator):
     gen = generator(data, t)
     u = critic1(data)
     v = critic2(target)
@@ -33,8 +33,7 @@ def transfer_loss(data, target, nt, t, eps, lp, critic1, critic2, generator):
     H = H/eps
     gen_ = gen.view(gen.shape[0], -1).unsqueeze(0)
     loss = (torch.abs(target_ - gen_)**lp).sum(2)*H.detach()
-    loss = loss.view(nt, -1).mean(1)
-    return loss
+    return loss.mean()
 
 
 def define_models(shape1, **parameters):
@@ -67,8 +66,9 @@ def evaluate(visualiser, data, target, target2, target3, generator, id, device):
     visualiser.image(target2.cpu().numpy(), title=f'Target 2', step=id)
     visualiser.image(target3.cpu().numpy(), title=f'Target 3', step=id)
 
-    concentrations = [(1,0,0,0), (0,1,0,0), (0,0,1,0), (0,0,0,1), (0.5,0.5,0,0), (0.5,0,0.5,0), (0.5,0,0,0.5), (0,0.5,0.5,0), (0,0.5,0,0.5), (0,0,0.5,0.5),
-            (0.34, 0.33, 0.33,0), (0,0.34,0.33,0.33),(0.25,0.25,0.25,0.25)]
+    concentrations = [(1,0,0,0), (0,1,0,0), (0,0,1,0), (0,0,0,1), (0.5,0.5,0,0), (0.5,0,0.5,0), (0.5,0,0,0.5),
+                      (0,0.5,0.5,0), (0,0.5,0,0.5), (0,0,0.5,0.5), (0.34, 0.33, 0.33,0), (0,0.34,0.33,0.33),
+                      (0.25,0.25,0.25,0.25)]
     for t_ in concentrations:
         t = torch.stack([torch.FloatTensor([t_])] * data.shape[0]).to(device)
         X = generator(data, t)
@@ -123,7 +123,7 @@ def train(args):
     criticz2.train()
     criticw1.train()
     criticw2.train()
-    for i in range(1000):
+    for i in range(5000):
         batchx, iter1 = sample(iter1, train_loader1)
         data = batchx[0].to(args.device)
 
@@ -207,10 +207,10 @@ def train(args):
         optim_generator.zero_grad()
         t_ = Dirichlet(torch.FloatTensor([1.,1.,1.,1.])).sample().to(args.device)
         t = torch.stack([t_]*data.shape[0])
-        t_lossx = transfer_loss(data, data, args.nt, t, args.eps, args.lp, criticx1, criticx2, generator)
-        t_lossy = transfer_loss(data, datay, args.nt, t, args.eps, args.lp, criticy1, criticy2, generator)
-        t_lossz = transfer_loss(data, dataz, args.nt, t, args.eps, args.lp, criticz1, criticz2, generator)
-        t_lossw = transfer_loss(data, dataw, args.nt, t, args.eps, args.lp, criticw1, criticw2, generator)
+        t_lossx = transfer_loss(data, data, t, args.eps, args.lp, criticx1, criticx2, generator)
+        t_lossy = transfer_loss(data, datay, t, args.eps, args.lp, criticy1, criticy2, generator)
+        t_lossz = transfer_loss(data, dataz, t, args.eps, args.lp, criticz1, criticz2, generator)
+        t_lossw = transfer_loss(data, dataw, t, args.eps, args.lp, criticw1, criticw2, generator)
         t_loss = (t_[0]*t_lossx + t_[1]*t_lossy + t_[2]*t_lossz + t_[3]*t_lossw).sum()
         t_loss.backward()
         optim_generator.step()
