@@ -118,9 +118,11 @@ def train(args):
         (r_loss + g_loss + p).backward(mone)
         optim_criticy1.step()
         optim_criticy2.step()
-        if i % 10 == 0:
+        if i % 100 == 0:
             print(f'Critics-{i}')
             print('Iter: %s' % i, time.time() - t0)
+            args.visualiser.plot(step=i, data=p.detach().cpu().numpy(), title=f'Penalty')
+            args.visualiser.plot(step=i, data=d_loss, title=f'Critic loss Y')
             t0 = time.time()
     for i in range(iteration, args.iterations):
         generator.train()
@@ -161,9 +163,7 @@ def train(args):
             datay = batchy[0].to(args.device)
             evaluate(args.visualiser, datax, datay, generator, 'x', args.device)
             d_loss = (r_loss+g_loss).detach().cpu().numpy()
-            args.visualiser.plot(step=i, data=d_loss, title=f'Critic loss Y')
             args.visualiser.plot(step=i, data=t_lossx.detach().cpu().numpy(), title=f'Generator loss X')
             args.visualiser.plot(step=i, data=t_lossy.detach().cpu().numpy(), title=f'Generator loss Y')
-            args.visualiser.plot(step=i, data=p.detach().cpu().numpy(), title=f'Penalty')
             t0 = time.time()
             save_models(models, i, args.model_path, args.checkpoint)
