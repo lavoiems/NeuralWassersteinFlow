@@ -78,7 +78,7 @@ def evaluate(visualiser, data, target, target2, target3, generator, id, device):
                       (0.2, 0, 0.8), (0.2, 0.2, 0.6), (0.25, 0.25, 0.5), (0.25, 0.5, 0.25), (0.2, 0.8, 0),
                       (0, 0, 1), (0, 0.2, 0.8), (0, 0.4, 0.6), (0, 0.6, 0.4), (0, 0.8, 0.2), (0, 1, 0)]
     for t_ in concentrations:
-        t = torch.stack([torch.FloatTensor([t_])] * data.shape[0]).to(device)
+        t = torch.stack([torch.FloatTensor([t_])] * data.shape[0]).to(device).squeeze()
         X = generator(data, t)
         visualiser.image(X.cpu().numpy(), title=f'Generated {t_}', step=id)
 
