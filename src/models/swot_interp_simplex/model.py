@@ -53,7 +53,7 @@ class Generator(nn.Module):
                nn.ReLU(inplace=True),
                nn.ConvTranspose2d(4*h_dim, 2*h_dim, 4, 2, 1),
                nn.ReLU(inplace=True),
-               nn.ConvTranspose2d(4*h_dim, h_dim, 4, 2, 1),
+               nn.ConvTranspose2d(2*h_dim, h_dim, 4, 2, 1),
                nn.ReLU(inplace=True),
                nn.ConvTranspose2d(h_dim, o_dim, 4, 2, 1),
                nn.Sigmoid()]
