@@ -133,6 +133,9 @@ def evaluate_3d(visualiser, data, target, target2, target3, lx, ly, lz, lw, gene
 
     concentrations = [(1,0,0,0), (0,1,0,0), (0,0,1,0), (0,0,0,1), (0.5,0.5,0,0), (0.5,0,0.5,0), (0.5,0,0,0.5), (0,0.5,0.5,0), (0,0.5,0,0.5), (0,0,0.5,0.5),
             (0.34, 0.33, 0.33,0), (0,0.34,0.33,0.33),(0.25,0.25,0.25,0.25)]
+    concentration = [(1,0,0,0), (0.7,0.3,0,0), (0.5,0.5,0,0), (0.3,0.7,0,0),
+                     (0.7,0,0.3,0), (0.6,0.2,0.2,0), (0.34,0.3,0.3,0), (0.2,0.6,0.2,0),(0,0.7,0.3,0),
+                     (0.5,0,0.5,0), ()]
     for concentration in concentrations:
         t_ = torch.FloatTensor(concentration).to(device)
         t = torch.stack([t_] * data.shape[0])

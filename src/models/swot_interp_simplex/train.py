@@ -43,8 +43,6 @@ def define_models(shape1, **parameters):
     criticy2 = model.Critic(shape1[0], **parameters)
     criticz1 = model.Critic(shape1[0], **parameters)
     criticz2 = model.Critic(shape1[0], **parameters)
-    criticw1 = model.Critic(shape1[0], **parameters)
-    criticw2 = model.Critic(shape1[0], **parameters)
     generator = model.Generator(shape1[0], **parameters)
     return {
         'generator': generator,
@@ -54,8 +52,6 @@ def define_models(shape1, **parameters):
         'criticy2': criticy2,
         'criticz1': criticz1,
         'criticz2': criticz2,
-        'criticw1': criticw1,
-        'criticw2': criticw2,
     }
 
 
@@ -75,9 +71,12 @@ def evaluate(visualiser, data, target, target2, target3, generator, id, device):
     visualiser.image(data02.cpu().numpy(), title=f'Data [1, 0, 1]', step=id)
     visualiser.image(data01.cpu().numpy(), title=f'Data [1, 1, 0]', step=id)
 
-    concentrations = [(1,0,0,0), (0,1,0,0), (0,0,1,0), (0,0,0,1), (0.5,0.5,0,0), (0.5,0,0.5,0), (0.5,0,0,0.5),
-                      (0,0.5,0.5,0), (0,0.5,0,0.5), (0,0,0.5,0.5), (0.34, 0.33, 0.33,0), (0,0.34,0.33,0.33),
-                      (0.25,0.25,0.25,0.25)]
+    concentrations = [(1,0,0),
+                      (0.8, 0, 0.2), (0.8, 0, 0.2),
+                      (0.6, 0, 0.4), (0.5, 0.25, 0.25), (0.6, 0.4, 0),
+                      (0.4, 0, 0.6), (0.25, 0.25, 0.6), (0.34, 0.33, 0.33), (0.4, 0.6, 0),
+                      (0.2, 0, 0.8), (0.2, 0.2, 0.6), (0.25, 0.25, 0.5), (0.25, 0.5, 0.25), (0.2, 0.8, 0),
+                      (0, 0, 1), (0, 0.2, 0.8), (0, 0.4, 0.6), (0, 0.6, 0.4), (0, 0.8, 0.2), (0, 1, 0)]
     for t_ in concentrations:
         t = torch.stack([torch.FloatTensor([t_])] * data.shape[0]).to(device)
         X = generator(data, t)
@@ -101,8 +100,6 @@ def train(args):
     criticy2 = models['criticy2'].to(args.device)
     criticz1 = models['criticz1'].to(args.device)
     criticz2 = models['criticz2'].to(args.device)
-    criticw1 = models['criticw1'].to(args.device)
-    criticw2 = models['criticw2'].to(args.device)
     print(generator)
     print(criticx1)
     print(criticy1)
@@ -113,8 +110,6 @@ def train(args):
     optim_criticy2 = optim.Adam(criticy2.parameters(), lr=args.lr, betas=(args.beta1, args.beta2))
     optim_criticz1 = optim.Adam(criticz1.parameters(), lr=args.lr, betas=(args.beta1, args.beta2))
     optim_criticz2 = optim.Adam(criticz2.parameters(), lr=args.lr, betas=(args.beta1, args.beta2))
-    optim_criticw1 = optim.Adam(criticw1.parameters(), lr=args.lr, betas=(args.beta1, args.beta2))
-    optim_criticw2 = optim.Adam(criticw2.parameters(), lr=args.lr, betas=(args.beta1, args.beta2))
     optim_generator = optim.Adam(generator.parameters(), lr=args.lr, betas=(args.beta1, args.beta2))
 
     iter1, iter2, iter3, iter4 = iter(train_loader1), iter(train_loader2), iter(train_loader3), iter(train_loader4)
@@ -130,8 +125,6 @@ def train(args):
     criticy2.train()
     criticz1.train()
     criticz2.train()
-    criticw1.train()
-    criticw2.train()
     for i in range(5000):
         batchx, iter1 = sample(iter1, train_loader1)
         data = batchx[0].to(args.device)
@@ -153,31 +146,25 @@ def train(args):
 
         optim_criticx1.zero_grad()
         optim_criticx2.zero_grad()
-        r_loss, g_loss, p = disc_loss_generation(data, data, args.eps, args.lp, criticx1, criticx2)
+        r_loss, g_loss, p = disc_loss_generation(data, datay, args.eps, args.lp, criticx1, criticx2)
         (r_loss + g_loss + p).backward(mone)
         optim_criticx1.step()
         optim_criticx2.step()
 
         optim_criticy1.zero_grad()
         optim_criticy2.zero_grad()
-        r_loss, g_loss, p = disc_loss_generation(data, datay, args.eps, args.lp, criticy1, criticy2)
+        r_loss, g_loss, p = disc_loss_generation(data, dataz, args.eps, args.lp, criticy1, criticy2)
         (r_loss + g_loss + p).backward(mone)
         optim_criticy1.step()
         optim_criticy2.step()
 
         optim_criticz1.zero_grad()
         optim_criticz2.zero_grad()
-        r_loss, g_loss, p = disc_loss_generation(data, dataz, args.eps, args.lp, criticz1, criticz2)
+        r_loss, g_loss, p = disc_loss_generation(data, dataw, args.eps, args.lp, criticz1, criticz2)
         (r_loss + g_loss + p).backward(mone)
         optim_criticz1.step()
         optim_criticz2.step()
 
-        optim_criticw1.zero_grad()
-        optim_criticw2.zero_grad()
-        r_loss, g_loss, p = disc_loss_generation(data, dataw, args.eps, args.lp, criticw1, criticw2)
-        (r_loss + g_loss + p).backward(mone)
-        optim_criticw1.step()
-        optim_criticw2.step()
         if i % 100 == 0:
             print(f'Critics-{i}')
             print('Iter: %s' % i, time.time() - t0)
@@ -193,8 +180,47 @@ def train(args):
         criticy2.train()
         criticz1.train()
         criticz2.train()
-        criticw1.train()
-        criticw2.train()
+
+        for i in range(args.d_updates):
+            batchx, iter1 = sample(iter1, train_loader1)
+            data = batchx[0].to(args.device)
+
+            batchy, iter2 = sample(iter2, train_loader2)
+            datay = batchy[0].to(args.device)
+            datay[:,1] = datay[:,1]*0
+            datay[:,2] = datay[:,2]*0
+
+            batchz, iter3 = sample(iter3, train_loader3)
+            dataz = batchz[0].to(args.device)
+            dataz[:,0] = dataz[:,0]*0
+            dataz[:,2] = dataz[:,2]*0
+
+            batchw, iter4 = sample(iter4, train_loader4)
+            dataw = batchw[0].to(args.device)
+            dataw[:,0] = dataw[:,0]*0
+            dataw[:,1] = dataw[:,1]*0
+
+            optim_criticx1.zero_grad()
+            optim_criticx2.zero_grad()
+            r_loss, g_loss, p = disc_loss_generation(data, datay, args.eps, args.lp, criticx1, criticx2)
+            (r_loss + g_loss + p).backward(mone)
+            optim_criticx1.step()
+            optim_criticx2.step()
+
+            optim_criticy1.zero_grad()
+            optim_criticy2.zero_grad()
+            r_loss, g_loss, p = disc_loss_generation(data, dataz, args.eps, args.lp, criticy1, criticy2)
+            (r_loss + g_loss + p).backward(mone)
+            optim_criticy1.step()
+            optim_criticy2.step()
+
+            optim_criticz1.zero_grad()
+            optim_criticz2.zero_grad()
+            r_loss, g_loss, p = disc_loss_generation(data, dataw, args.eps, args.lp, criticz1, criticz2)
+            (r_loss + g_loss + p).backward(mone)
+            optim_criticz1.step()
+            optim_criticz2.step()
+
         batchx, iter1 = sample(iter1, train_loader1)
         data = batchx[0].to(args.device)
 
@@ -214,13 +240,12 @@ def train(args):
         dataw[:,1] = dataw[:,1]*0
 
         optim_generator.zero_grad()
-        t_ = Dirichlet(torch.FloatTensor([1.,1.,1.,1.])).sample().to(args.device)
+        t_ = Dirichlet(torch.FloatTensor([1.,1.,1.])).sample().to(args.device)
         t = torch.stack([t_]*data.shape[0])
         t_lossx = transfer_loss(data, data, t, args.eps, args.lp, criticx1, criticx2, generator)
         t_lossy = transfer_loss(data, datay, t, args.eps, args.lp, criticy1, criticy2, generator)
         t_lossz = transfer_loss(data, dataz, t, args.eps, args.lp, criticz1, criticz2, generator)
-        t_lossw = transfer_loss(data, dataw, t, args.eps, args.lp, criticw1, criticw2, generator)
-        t_loss = (t_[0]*t_lossx + t_[1]*t_lossy + t_[2]*t_lossz + t_[3]*t_lossw).sum()
+        t_loss = (t_[0]*t_lossx + t_[1]*t_lossy + t_[2]*t_lossz).sum()
         t_loss.backward()
         optim_generator.step()
 

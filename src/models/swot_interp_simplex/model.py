@@ -37,21 +37,32 @@ class Generator(nn.Module):
     def __init__(self, o_dim, h_dim, **kwargs):
         super(Generator, self).__init__()
 
-        encoder = [Block(o_dim, h_dim, 64)]
-        dim = h_dim
-        for _ in range(8):
-            in_dim = dim
-            dim = min(in_dim*2, h_dim*4)
-            encoder += [Block(in_dim, dim, 64)]
-        self.encoder = nn.ModuleList(encoder)
-        self.out = nn.Conv2d(dim, o_dim, 3, 1, 1)
+        x = [nn.Conv2d(o_dim, h_dim, 4, 2, 1),
+             nn.ReLU(inplace=True),
+             nn.Conv2d(h_dim, h_dim*2, 4, 2, 1),
+             nn.ReLU(inplace=True),
+             nn.Conv2d(h_dim*2, h_dim*4, 4, 2, 1),
+             nn.ReLU(inplace=True),
+             nn.Conv2d(h_dim*4, 4*h_dim, 4, 1, 0)]
+
+        self.x = nn.Sequential(*x)
+
+        out = [nn.Conv2d(4*h_dim+3, 4*h_dim, 1, 1, 0),
+               nn.ReLU(inplace=True),
+               nn.ConvTranspose2d(4*h_dim, 4*h_dim, 4, 1, 0),
+               nn.ReLU(inplace=True),
+               nn.ConvTranspose2d(4*h_dim, 2*h_dim, 4, 2, 1),
+               nn.ReLU(inplace=True),
+               nn.ConvTranspose2d(4*h_dim, h_dim, 4, 2, 1),
+               nn.ReLU(inplace=True),
+               nn.ConvTranspose2d(h_dim, o_dim, 4, 2, 1),
+               nn.Sigmoid(())]
+        self.out = nn.Sequential(*out)
 
     def forward(self, z, t):
-        o = z
-        for layer in self.encoder:
-            o = layer(o, t)
-        o = self.out(o)
-        return F.sigmoid(o)
+        o = self.x(z).squeeze()
+        o = torch.cat((o, t), 1)
+        return self.out(o)
 
 
 class TCBN(nn.Module):
