@@ -7,8 +7,8 @@ from common.initialize import initialize, infer_iteration
 from . import model
 
 
-def disc_loss_generation(data, nz, alpha, eps, lp, critic1, critic2, generator, device):
-    t = torch.distributions.beta.Beta(alpha, alpha).sample_n(1).to(device)
+def disc_loss_generation(data, nz, eps, lp, critic1, critic2, generator, device):
+    t = torch.rand(1).to(device)
     t = torch.stack([t]*data.shape[0])
     z = torch.randn(data.shape[0], nz, device=device)
     gen = generator(z, t).detach()
@@ -114,7 +114,7 @@ def train(args):
 
             optim_critic1.zero_grad()
             optim_critic2.zero_grad()
-            r_loss, g_loss, p = disc_loss_generation(data, args.z_dim, args.alpha, args.eps, args.lp, critic1, critic2, generator, args.device)
+            r_loss, g_loss, p = disc_loss_generation(data, args.z_dim, args.eps, args.lp, critic1, critic2, generator, args.device)
             (r_loss + g_loss + p).backward(mone)
             optim_critic1.step()
             optim_critic2.step()
@@ -129,13 +129,13 @@ def train(args):
 
             optim_critic3.zero_grad()
             optim_critic4.zero_grad()
-            r_loss, g_loss, p = disc_loss_generation(datay, args.z_dim, args.alpha, args.eps, args.lp, critic3, critic4, generator, args.device)
+            r_loss, g_loss, p = disc_loss_generation(datay, args.z_dim, args.eps, args.lp, critic3, critic4, generator, args.device)
             (r_loss + g_loss + p).backward(mone)
             optim_critic3.step()
             optim_critic4.step()
 
         optim_generator.zero_grad()
-        t_ = torch.distributions.beta.Beta(args.alpha, args.alpha).sample_n(1).to(args.device)
+        t_ = torch.rand(1).to(args.device)
         t = torch.stack([t_]*data.shape[0])
         t_loss1 = transfer_loss(data, args.eps, args.lp, args.z_dim, t, critic1, critic2, generator, args.device)
         t_loss2 = transfer_loss(datay, args.eps, args.lp, args.z_dim, t, critic3, critic4, generator, args.device)
