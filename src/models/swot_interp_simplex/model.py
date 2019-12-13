@@ -56,7 +56,7 @@ class Generator(nn.Module):
                nn.ConvTranspose2d(4*h_dim, h_dim, 4, 2, 1),
                nn.ReLU(inplace=True),
                nn.ConvTranspose2d(h_dim, o_dim, 4, 2, 1),
-               nn.Sigmoid(())]
+               nn.Sigmoid()]
         self.out = nn.Sequential(*out)
 
     def forward(self, z, t):
