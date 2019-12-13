@@ -12,7 +12,7 @@ def disc_loss_generation(target, z_dim, generator, eps, lp, critic1, critic2, de
     t_ = Dirichlet(torch.FloatTensor([1.,1.,1.])).sample().to(device)
     t = torch.stack([t_]*target.shape[0])
     z = torch.randn(target.shape[0], z_dim, device=device)
-    gen = generator(z, t)
+    gen = generator(z, t).detach()
     u = critic1(gen, t)
     v = critic2(target, t)
     u_ = u.unsqueeze(0)
