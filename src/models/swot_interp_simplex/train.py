@@ -57,8 +57,8 @@ def define_models(shape1, **parameters):
 
 @torch.no_grad()
 def evaluate(visualiser, data, target, target2, target3, generator, id, device):
-    visualiser.image(target.cpu().numpy(), title=f'Target', step=id)
     visualiser.image(data.cpu().numpy(), title=f'Source', step=id)
+    visualiser.image(target.cpu().numpy(), title=f'Target', step=id)
     visualiser.image(target2.cpu().numpy(), title=f'Target 2', step=id)
     visualiser.image(target3.cpu().numpy(), title=f'Target 3', step=id)
     data12 = torch.clone(data)
@@ -71,16 +71,21 @@ def evaluate(visualiser, data, target, target2, target3, generator, id, device):
     visualiser.image(data02.cpu().numpy(), title=f'Data [1, 0, 1]', step=id)
     visualiser.image(data01.cpu().numpy(), title=f'Data [1, 1, 0]', step=id)
 
-    concentrations = [(1,0,0),
-                      (0.8, 0, 0.2), (0.8, 0, 0.2),
-                      (0.6, 0, 0.4), (0.5, 0.25, 0.25), (0.6, 0.4, 0),
-                      (0.4, 0, 0.6), (0.25, 0.25, 0.6), (0.34, 0.33, 0.33), (0.4, 0.6, 0),
-                      (0.2, 0, 0.8), (0.2, 0.2, 0.6), (0.25, 0.25, 0.5), (0.25, 0.5, 0.25), (0.2, 0.8, 0),
+    concentrations = [(1,0,0), None, None, None, None, None,
+                      (0.8, 0, 0.2), (0.8, 0, 0.2), None, None, None, None,
+                      (0.6, 0, 0.4), (0.5, 0.25, 0.25), (0.6, 0.4, 0), None, None, None,
+                      (0.4, 0, 0.6), (0.25, 0.25, 0.6), (0.34, 0.33, 0.33), (0.4, 0.6, 0), None, None,
+                      (0.2, 0, 0.8), (0.2, 0.2, 0.6), (0.25, 0.25, 0.5), (0.25, 0.5, 0.25), (0.2, 0.8, 0), None,
                       (0, 0, 1), (0, 0.2, 0.8), (0, 0.4, 0.6), (0, 0.6, 0.4), (0, 0.8, 0.2), (0, 1, 0)]
+    plot = []
     for t_ in concentrations:
-        t = torch.stack([torch.FloatTensor([t_])] * data.shape[0]).to(device).squeeze()
-        X = generator(data, t)
-        visualiser.image(X.cpu().numpy(), title=f'Generated {t_}', step=id)
+        if t_ is None:
+            plot += torch.zeros(32, 32, 3).numpy()
+        else:
+            t = torch.stack([torch.FloatTensor([t_])] * data.shape[0]).to(device).squeeze()
+            X = generator(data, t)[0]
+            plot += [X.cpu().numpy()]
+    visualiser.image(plot, title=f'Generated {t_}', step=id)
 
 
 def train(args):
@@ -259,7 +264,7 @@ def train(args):
             evaluate(args.visualiser, data, datay, dataz, dataw, generator, 'x', args.device)
             args.visualiser.plot(step=i, data=t_lossx.detach().cpu().numpy(), title=f'Generator loss X')
             args.visualiser.plot(step=i, data=t_lossy.detach().cpu().numpy(), title=f'Generator loss Y')
-            args.visualiser.plot(step=i, data=t_lossy.detach().cpu().numpy(), title=f'Generator loss Z')
+            args.visualiser.plot(step=i, data=t_lossz.detach().cpu().numpy(), title=f'Generator loss Z')
             args.visualiser.plot(step=i, data=p.detach().cpu().numpy(), title=f'Penalty')
             d_loss = (r_loss+g_loss).detach().cpu().numpy()
             args.visualiser.plot(step=i, data=d_loss, title=f'Critic loss Y')
