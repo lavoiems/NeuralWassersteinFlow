@@ -5,7 +5,7 @@ import torch
 import numpy as np
 from PIL import Image
 import matplotlib.pylab as plt
-from .dataset_shapenet import ShapeNetSeg
+#from .dataset_shapenet import ShapeNetSeg
 
 
 def spiral(scale, batch_size, translationx=0, translationy=0):
