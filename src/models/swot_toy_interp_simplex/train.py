@@ -5,6 +5,7 @@ from torch.distributions.dirichlet import Dirichlet
 import matplotlib.pyplot as plt
 import matplotlib.cm as cmx
 import matplotlib.colors as colors
+from matplotlib import transforms
 from mpl_toolkits.mplot3d import Axes3D
 
 from common.util import sample, save_models
@@ -90,7 +91,17 @@ def evaluate(visualiser, data, target, target2, generator, id, device):
     plt.scatter(*target2.cpu().numpy().transpose())
     visualiser.matplotlib(fig, 'target3', f'{id}0')
     plt.clf()
-    concentrations = [(1,0,0), (0,1,0), (0,0,1), (0.5, 0.5, 0), (0.5, 0, 0.5), (0, 0.5, 0.5), (0.34, 0.33, 0.33)]
+    #concentrations = [(1,0,0), (0,1,0), (0,0,1), (0.5, 0.5, 0), (0.5, 0, 0.5), (0, 0.5, 0.5), (0.34, 0.33, 0.33)]
+
+    concentrations = []
+    for i in range(5 + 1):
+        for j in range(5 + 1):
+            ii = i / 5
+            jj = j / 5
+            if ii + jj > 1:
+                continue
+            concentrations.append((ii, jj, 1 - (ii + jj)))
+
     for concentration in concentrations:
         plt.xlim(0,1)
         plt.ylim(0,1)
@@ -100,6 +111,19 @@ def evaluate(visualiser, data, target, target2, generator, id, device):
         plt.scatter(*X.cpu().numpy().transpose(), c=color_val)
         visualiser.matplotlib(fig, f'data{concentration}', f'{id}0')
         plt.clf()
+
+    for i, concentration in enumerate(concentrations):
+        p1 = (concentration[0]) * 0.8
+        p2 = (concentration[1]) * 0.8
+        pos = transforms.Bbox([[p1, p2], [p1 + 0.15, p2 + 0.15]])
+        ax = plt.subplot(5, 5, i + 1, position=pos)
+        ax.patch.set_alpha(0)
+        t_ = torch.FloatTensor(concentration).to(device)
+        t = torch.stack([t_] * data.shape[0])
+        X = generator(data, t)
+        plt.scatter(*X.cpu().numpy().transpose(), c=color_val)
+        ax.set_axis_off()
+    visualiser.matplotlib(fig, f'Generated simplex', f'{id}0')
     plt.close(fig)
 
 
