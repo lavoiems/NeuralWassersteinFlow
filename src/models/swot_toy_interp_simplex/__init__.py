@@ -18,18 +18,25 @@ def parse_args(parser):
 
 def execute(args):
     print(args)
-    dataset1 = toy.shapenet(args.train_batch_size, 0)
-    dataset2 = toy.shapenet(args.train_batch_size, 1)
-    dataset3 = toy.shapenet(args.train_batch_size, 2)
-    dataset4 = toy.shapenet(args.train_batch_size, 3)
-    tdataset1 = toy.shapenet(args.test_batch_size, 0)
-    tdataset2 = toy.shapenet(args.test_batch_size, 1)
-    tdataset3 = toy.shapenet(args.test_batch_size, 2)
-    tdataset4 = toy.shapenet(args.test_batch_size, 3)
+    #dataset1 = toy.shapenet(args.train_batch_size, 0)
+    #dataset2 = toy.shapenet(args.train_batch_size, 1)
+    #dataset3 = toy.shapenet(args.train_batch_size, 2)
+    #dataset4 = toy.shapenet(args.train_batch_size, 3)
+    #tdataset1 = toy.shapenet(args.test_batch_size, 0)
+    #tdataset2 = toy.shapenet(args.test_batch_size, 1)
+    #tdataset3 = toy.shapenet(args.test_batch_size, 2)
+    #tdataset4 = toy.shapenet(args.test_batch_size, 3)
+    dataset1 = toy.png(args.train_batch_size, 'circle.png')
+    dataset2 = toy.png(args.train_batch_size, 'square.png')
+    dataset3 = toy.png(args.train_batch_size, 'star.png')
+    tdataset1 = toy.png(args.train_batch_size, 'circle.png')
+    tdataset2 = toy.png(args.train_batch_size, 'square.png')
+    tdataset3 = toy.png(args.train_batch_size, 'star.png')
+
     args.loaders1 = (dataset1, tdataset1)
     args.loaders2 = (dataset2, tdataset2)
     args.loaders3 = (dataset3, tdataset3)
-    args.loaders4 = (dataset4, tdataset4)
-    args.shape1 = 3
+    #args.loaders4 = (dataset4, tdataset4)
+    args.shape1 = 2
 
     train(args)
