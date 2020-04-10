@@ -237,7 +237,7 @@ def train(args):
             #optim_criticw2.step()
 
         optim_generator.zero_grad()
-        t_ = Dirichlet(torch.FloatTensor([1.,1.,1.,1.])).sample().to(args.device)
+        t_ = Dirichlet(torch.FloatTensor([1.,1.,1.])).sample().to(args.device)
         t = torch.stack([t_]*input_data.shape[0])
         tinputdata = torch.cat([input_data]*args.nt)
         tdata = torch.cat([data]*args.nt)
