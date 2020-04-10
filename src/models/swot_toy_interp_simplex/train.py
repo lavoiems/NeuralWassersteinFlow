@@ -102,15 +102,15 @@ def evaluate(visualiser, data, target, target2, generator, id, device):
                 continue
             concentrations.append((ii, jj, 1 - (ii + jj)))
 
-    for concentration in concentrations:
-        plt.xlim(0,1)
-        plt.ylim(0,1)
-        t_ = torch.FloatTensor(concentration).to(device)
-        t = torch.stack([t_] * data.shape[0])
-        X = generator(data, t)
-        plt.scatter(*X.cpu().numpy().transpose(), c=color_val)
-        visualiser.matplotlib(fig, f'data{concentration}', f'{id}0')
-        plt.clf()
+    #for concentration in concentrations:
+    #    plt.xlim(0,1)
+    #    plt.ylim(0,1)
+    #    t_ = torch.FloatTensor(concentration).to(device)
+    #    t = torch.stack([t_] * data.shape[0])
+    #    X = generator(data, t)
+    #    plt.scatter(*X.cpu().numpy().transpose(), c=color_val)
+    #    visualiser.matplotlib(fig, f'data{concentration}', f'{id}0')
+    #    plt.clf()
 
     for i, concentration in enumerate(concentrations):
         p1 = (concentration[0]) * 0.8
