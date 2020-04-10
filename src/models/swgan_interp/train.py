@@ -63,10 +63,10 @@ def evaluate(visualiser, noise, data, data2, transfer, id, device):
     z = noise[:10]
     gen = []
     for i in range(card):
-        t = torch.FloatTensor([i/(card-1)]).repeat(noise.shape[0], 1).to(device)
+        t = torch.FloatTensor([i/(card-1)]).repeat(z.shape[0], 1).to(device)
         X = transfer(z, t).cpu()
         gen += [X]
-    gen = torch.cat(X).numpy()
+    gen = torch.cat(gen).numpy()
     visualiser.image(gen, title=f'GAN generated', step=id)
 
 

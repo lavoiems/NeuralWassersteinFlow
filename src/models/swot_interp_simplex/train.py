@@ -80,11 +80,12 @@ def evaluate(visualiser, data, target, target2, target3, generator, id, device):
     plot = []
     for t_ in concentrations:
         if t_ is None:
-            plot += torch.zeros(32, 32, 3).numpy()
+            plot += [torch.ones(3, 32, 32)]
         else:
             t = torch.stack([torch.FloatTensor([t_])] * data.shape[0]).to(device).squeeze()
             X = generator(data, t)[0]
-            plot += [X.cpu().numpy()]
+            plot += [X.cpu()]
+    plot = torch.stack(plot).numpy()
     visualiser.image(plot, title=f'Generated {t_}', step=id)
 
 
@@ -130,7 +131,7 @@ def train(args):
     criticy2.train()
     criticz1.train()
     criticz2.train()
-    for i in range(5000):
+    for i in range(0):
         batchx, iter1 = sample(iter1, train_loader1)
         data = batchx[0].to(args.device)
 
